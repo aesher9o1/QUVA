@@ -21,7 +21,7 @@ export class AppController {
 
   @Get('addSubscriber')
   addSubscriber(@Query('pin') pin: string, @Query('number') number: string) {
-    this.whatsappService.updateDB(number, pin);
+    this.whatsappService.addSubscriber(number, pin);
     return {
       message: 'DONE',
     };

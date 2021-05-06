@@ -48,28 +48,13 @@ export class WhatsappService {
 
         if (pincodeFromBody && PINCODE_REGEX.test(pincodeFromBody)) {
           const phoneNumber = message.from.toString().split('@c.us')[0];
-          console.log(`Adding ${phoneNumber}`);
-          this.subscriberModel
-            .updateOne(
-              {
-                phoneNumber,
-                pincode: pincodeFromBody,
-              },
-              {
-                phoneNumber,
-                pincode: pincodeFromBody,
-              },
-              {
-                upsert: true,
-              },
-            )
-            .catch((err) => console.log(err));
+          this.addSubscriber(phoneNumber, pincodeFromBody);
         }
       }
     });
   }
 
-  updateDB(phoneNumber: string, pincode: string) {
+  addSubscriber(phoneNumber: string, pincode: string) {
     console.log(`Adding ${phoneNumber}`);
     this.subscriberModel
       .updateOne(
