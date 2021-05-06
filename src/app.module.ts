@@ -6,12 +6,14 @@ import {
   SubscriberCollection,
   SubscriberSchema,
 } from './models/subscriber.model';
+import { MessageQueueModule } from './modules/bull.module';
 import { MongooseHandlerModule } from './modules/mongoose.module';
 import { WhatsappService } from './whatsapp.service';
 
 @Module({
   imports: [
     MongooseHandlerModule,
+    MessageQueueModule,
     MongooseModule.forFeature([
       { name: SubscriberCollection.name, schema: SubscriberSchema },
     ]),
