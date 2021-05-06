@@ -1,5 +1,6 @@
-import moment from 'moment';
+import * as moment from 'moment';
 import axios from 'axios';
+import { ICenter, ICenterMini } from 'src/modules/center.model';
 
 export class SlotManager {
   pincode: string;
@@ -9,8 +10,9 @@ export class SlotManager {
     this.pincode = pincode;
     this.age = age;
   }
-  async checkAvailibility() {
-    const datesArray = await this.fetchNext10Days();
+
+  checkAvailibility() {
+    const datesArray = this.fetchNext10Days();
     datesArray.forEach((date) => {
       this.getSlotsForDate(date);
     });
@@ -42,20 +44,34 @@ export class SlotManager {
         },
       )
       .then(function (slots) {
-        const centers = slots.data.centers;
-
+        const centers: ICenter[] = slots.data.centers;
         if (centers.length > 0) {
+          const availableCenters: ICenterMini[] = [];
           centers.forEach((center) => {
             const sessions = center.sessions;
             const validSlots = sessions.filter(
               (slot) =>
-                slot.min_age_limit <= this.age && slot.available_capacity > 0,
+                // slot.min_age_limit <= this.age && slot.available_capacity > 0,
+                slot.min_age_limit <= this.age,
             );
 
             if (validSlots.length > 0) {
-              // send alert
+              availableCenters.push({
+                name: center.name,
+                address: center.address,
+                fee_type: center.fee_type,
+                pincode: center.pincode,
+                sessions: center.sessions.map((session) => ({
+                  date: session.date,
+                  available_capacity: session.available_capacity,
+                  min_age_limit: session.min_age_limit,
+                  vaccine: session.vaccine,
+                  slots: session.slots,
+                })),
+              });
             }
           });
+          console.log(availableCenters);
         }
       })
       .catch(function (error) {

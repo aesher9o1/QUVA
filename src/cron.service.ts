@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
+import { SlotManager } from './utils/slots.utils';
 import { WhatsappService } from './whatsapp.service';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class CronService {
     private readonly whatsappService: WhatsappService,
   ) {}
 
-  @Cron('0 * * * *')
+  // @Cron('0 * * * *')
   async sendUpdate() {
     const res = await this.subscriberModel.aggregate([
       {
@@ -27,10 +28,12 @@ export class CronService {
     ]);
     const client = await this.whatsappService.getClient();
     res.forEach((entry) => {
+      const slotManager = new SlotManager(entry._id, 200);
+      slotManager.checkAvailibility();
       entry.phoneNumber.forEach((number) => {
-        client
-          .sendText(`@c.us${number}`, entry._id)
-          .catch((e) => console.log(e));
+        // client
+        //   .sendText(`@c.us${number}`, entry._id)
+        //   .catch((e) => console.log(e));
       });
     });
   }
