@@ -9,6 +9,7 @@ import {
   SubscriberCollection,
 } from './models/subscriber.model';
 import { BullQueueNames } from './utils/config.utils';
+import { SlotManager } from './utils/slots.utils';
 import { WhatsappService } from './whatsapp.service';
 
 @Injectable()
@@ -37,10 +38,12 @@ export class CronService {
     ]);
     const client = await this.whatsappService.getClient();
     res.forEach((entry) => {
+      const slotManager = new SlotManager(entry._id, 200);
+      slotManager.checkAvailibility();
       entry.phoneNumber.forEach((number) => {
-        client
-          .sendText(`@c.us${number}`, entry._id)
-          .catch((e) => console.log(e));
+        // client
+        //   .sendText(`@c.us${number}`, entry._id)
+        //   .catch((e) => console.log(e));
       });
     });
   }
