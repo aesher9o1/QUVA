@@ -4,6 +4,7 @@ export enum Queues {
   MESSAGE = 'MESSAGE',
 }
 export const MessageQueueModule = BullModule.registerQueueAsync({
+  name: Queues.MESSAGE,
   useFactory: () => ({
     name: Queues.MESSAGE,
     redis: { host: 'localhost', port: 6379 },
