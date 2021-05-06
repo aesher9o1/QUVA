@@ -3,15 +3,13 @@ import { MiddlewareConsumer, NestModule, Module } from '@nestjs/common';
 import { Queue } from 'bull';
 import { createBullBoard } from 'bull-board';
 import { BullAdapter } from 'bull-board/bullAdapter';
-
-export enum Queues {
-  WHATSAPP_ALERTS = 'whatsapp_alerts',
-}
+import { BullQueueNames } from '../utils/config.utils';
+import { WhatsappConsumer } from 'src/consumers/whatsapp.consumer';
 
 const MessageQueueModule = BullModule.registerQueueAsync({
-  name: Queues.WHATSAPP_ALERTS,
+  name: BullQueueNames.WHATSAPP_ALERTS,
   useFactory: () => ({
-    name: Queues.WHATSAPP_ALERTS,
+    name: BullQueueNames.WHATSAPP_ALERTS,
     redis: { host: 'localhost', port: 6379 },
     defaultJobOptions: {
       removeOnComplete: true,
@@ -31,10 +29,12 @@ const MessageQueueModule = BullModule.registerQueueAsync({
 
 @Module({
   imports: [MessageQueueModule],
+  providers: [WhatsappConsumer],
 })
 export class BullQueueManager implements NestModule {
   constructor(
-    @InjectQueue(Queues.WHATSAPP_ALERTS) private readonly messageQueue: Queue,
+    @InjectQueue(BullQueueNames.WHATSAPP_ALERTS)
+    private readonly messageQueue: Queue,
   ) {}
 
   configure(consumer: MiddlewareConsumer) {

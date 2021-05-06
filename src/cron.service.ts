@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
 import { WhatsappService } from './whatsapp.service';
@@ -13,7 +13,7 @@ export class CronService {
     private readonly whatsappService: WhatsappService,
   ) {}
 
-  @Cron('0 * * * *')
+  @Cron(CronExpression.EVERY_HOUR)
   async sendUpdate() {
     const res = await this.subscriberModel.aggregate([
       {
