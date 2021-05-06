@@ -21,8 +21,6 @@ export class AlertHandler {
         Authorization: `Bearer ${process.env.BOT_ACCESS_TOKEN}`,
       },
       data,
-    })
-      .then(({ data }) => console.log(data))
-      .catch((err) => console.log(err));
+    }).catch((err) => console.log(err));
   }
 }
