@@ -1,7 +1,11 @@
 import { BullModule } from '@nestjs/bull';
 
+export enum Queues {
+  MESSAGE = 'MESSAGE',
+}
 export const MessageQueueModule = BullModule.registerQueueAsync({
   useFactory: () => ({
+    name: Queues.MESSAGE,
     redis: { host: 'localhost', port: 6379 },
     defaultJobOptions: {
       removeOnComplete: true,
