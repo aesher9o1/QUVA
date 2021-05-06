@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CronService } from './cron.service';
 import {
   SubscriberCollection,
   SubscriberSchema,
@@ -21,6 +22,6 @@ import { WhatsappService } from './whatsapp.service';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, WhatsappService],
+  providers: [AppService, WhatsappService, CronService],
 })
 export class AppModule {}

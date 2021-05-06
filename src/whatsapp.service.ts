@@ -5,7 +5,6 @@ import { AlertHandler } from './utils/alerts.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
 import { Model } from 'mongoose';
-import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class WhatsappService {
@@ -77,27 +76,5 @@ export class WhatsappService {
   async getClient() {
     if (!this.client) await this.createSession();
     return this.client;
-  }
-
-  @Cron('0 * * * *')
-  async sendUpdate() {
-    const res = await this.subscriberModel.aggregate([
-      {
-        $group: {
-          _id: '$pincode',
-          phoneNumber: {
-            $push: '$$ROOT.phoneNumber',
-          },
-        },
-      },
-    ]);
-    const client = await this.getClient();
-    res.forEach((entry) => {
-      entry.phoneNumber.forEach((number) => {
-        client
-          .sendText(`@c.us${number}`, entry._id)
-          .catch((e) => console.log(e));
-      });
-    });
   }
 }
