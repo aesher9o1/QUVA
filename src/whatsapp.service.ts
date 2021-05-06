@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Injectable } from '@nestjs/common';
 import { Whatsapp, create } from 'venom-bot';
-import { AlertHandler } from './utis/alerts';
+import { AlertHandler } from './utils/alerts';
 
 @Injectable()
 export class WhatsappService {
