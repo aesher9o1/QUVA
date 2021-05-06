@@ -1,4 +1,4 @@
-import { Schema, Prop } from '@nestjs/mongoose';
+import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 @Schema({
   collection: 'subscriber',
@@ -13,6 +13,10 @@ export class SubscriberCollection extends Document {
   @Prop({ type: String, required: true, index: true })
   phoneNumber: string;
 }
+
+export const SubscriberCollectionSchema = SchemaFactory.createForClass(
+  SubscriberCollection,
+);
 export interface ISubscriptionCollection {
   pincode: SubscriberCollection['pincode'];
   phoneNumber: SubscriberCollection['phoneNumber'];
