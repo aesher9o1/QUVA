@@ -5,6 +5,7 @@ import { createBullBoard } from 'bull-board';
 import { BullAdapter } from 'bull-board/bullAdapter';
 import { BullQueueNames } from '../utils/config.utils';
 import { WhatsappConsumer } from 'src/consumers/whatsapp.consumer';
+import { WhatsappService } from 'src/whatsapp.service';
 
 const MessageQueueModule = BullModule.registerQueueAsync({
   name: BullQueueNames.WHATSAPP_ALERTS,
@@ -29,7 +30,7 @@ const MessageQueueModule = BullModule.registerQueueAsync({
 
 @Module({
   imports: [MessageQueueModule],
-  providers: [WhatsappConsumer],
+  providers: [WhatsappConsumer, WhatsappService],
   exports: [MessageQueueModule],
 })
 export class BullQueueManager implements NestModule {

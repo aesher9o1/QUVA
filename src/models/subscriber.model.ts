@@ -1,5 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { ICenterMini } from './center.model';
 @Schema({
   collection: 'subscriber',
   autoCreate: true,
@@ -20,4 +21,5 @@ export const SubscriberSchema = SchemaFactory.createForClass(
 export interface ISubscriptionCollection {
   pincode: SubscriberCollection['pincode'];
   phoneNumber: SubscriberCollection['phoneNumber'];
+  data: ICenterMini[][];
 }
