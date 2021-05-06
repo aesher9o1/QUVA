@@ -1,12 +1,17 @@
-import { BullModule } from '@nestjs/bull';
+import { BullModule, InjectQueue } from '@nestjs/bull';
+import { MiddlewareConsumer, NestModule, Module } from '@nestjs/common';
+import { Queue } from 'bull';
+import { createBullBoard } from 'bull-board';
+import { BullAdapter } from 'bull-board/bullAdapter';
 
 export enum Queues {
-  MESSAGE = 'MESSAGE',
+  WHATSAPP_ALERTS = 'whatsapp_alerts',
 }
-export const MessageQueueModule = BullModule.registerQueueAsync({
-  name: Queues.MESSAGE,
+
+const MessageQueueModule = BullModule.registerQueueAsync({
+  name: Queues.WHATSAPP_ALERTS,
   useFactory: () => ({
-    name: Queues.MESSAGE,
+    name: Queues.WHATSAPP_ALERTS,
     redis: { host: 'localhost', port: 6379 },
     defaultJobOptions: {
       removeOnComplete: true,
@@ -23,3 +28,17 @@ export const MessageQueueModule = BullModule.registerQueueAsync({
     },
   }),
 });
+
+@Module({
+  imports: [MessageQueueModule],
+})
+export class BullQueueManager implements NestModule {
+  constructor(
+    @InjectQueue(Queues.WHATSAPP_ALERTS) private readonly messageQueue: Queue,
+  ) {}
+
+  configure(consumer: MiddlewareConsumer) {
+    const { router } = createBullBoard([new BullAdapter(this.messageQueue)]);
+    consumer.apply(router).forRoutes('queues');
+  }
+}
