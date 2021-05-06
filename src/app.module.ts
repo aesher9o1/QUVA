@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
@@ -12,6 +13,7 @@ import { WhatsappService } from './whatsapp.service';
 @Module({
   imports: [
     MongooseHandlerModule,
+    ScheduleModule.forRoot(),
     MongooseModule.forFeature([
       { name: SubscriberCollection.name, schema: SubscriberSchema },
     ]),
