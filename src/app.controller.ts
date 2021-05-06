@@ -1,9 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
+import { WhatsappService } from './whatsapp.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly whatsappService: WhatsappService,
+  ) {}
 
   @Get('startWhatsapp')
   async startWhatsapp() {
@@ -14,4 +18,12 @@ export class AppController {
   // async stopWhatsapp() {
   //   return await this.appService.stopWhatsapp();
   // }
+
+  @Get('addSubscriber')
+  addSubscriber(@Query('pin') pin: string, @Query('number') number: string) {
+    this.whatsappService.updateDB(number, pin);
+    return {
+      message: 'DONE',
+    };
+  }
 }

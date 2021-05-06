@@ -69,6 +69,25 @@ export class WhatsappService {
     });
   }
 
+  updateDB(phoneNumber: string, pincode: string) {
+    console.log(`Adding ${phoneNumber}`);
+    this.subscriberModel
+      .updateOne(
+        {
+          phoneNumber,
+          pincode,
+        },
+        {
+          phoneNumber,
+          pincode,
+        },
+        {
+          upsert: true,
+        },
+      )
+      .catch((err) => console.log(err));
+  }
+
   async getClient() {
     if (!this.client) await this.createSession();
     return this.client;
