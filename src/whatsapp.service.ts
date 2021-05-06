@@ -2,11 +2,17 @@
 import { Injectable } from '@nestjs/common';
 import { Whatsapp, create } from 'venom-bot';
 import { AlertHandler } from './utils/alerts.utils';
+import { InjectModel } from '@nestjs/mongoose';
+import { SubscriberCollection } from './models/subscriber.model';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class WhatsappService {
   private client: Whatsapp;
-  constructor() {
+  constructor(
+    @InjectModel(SubscriberCollection.name)
+    private subscriberModel: Model<SubscriberCollection>,
+  ) {
     this.createSession();
   }
 
@@ -41,11 +47,20 @@ export class WhatsappService {
         const pincodeFromBody = message.body.split('notify ')[1];
 
         if (pincodeFromBody && PINCODE_REGEX.test(pincodeFromBody)) {
-          console.log({
-            body: message.body,
-            from: Number(message.from.toString().split('@c.us')[0]),
-            pincode: Number(pincodeFromBody),
-          });
+          const phoneNumber = message.from.toString().split('@c.us')[0];
+          this.subscriberModel.updateOne(
+            {
+              phoneNumber,
+              pincode: pincodeFromBody,
+            },
+            {
+              phoneNumber,
+              pincode: pincodeFromBody,
+            },
+            {
+              upsert: true,
+            },
+          );
         }
       }
     });

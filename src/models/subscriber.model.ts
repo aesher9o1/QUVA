@@ -13,7 +13,7 @@ export class SubscriberCollection extends Document {
   phoneNumber: string;
 }
 
-export const SubscriberCollectionSchema = SchemaFactory.createForClass(
+export const SubscriberSchema = SchemaFactory.createForClass(
   SubscriberCollection,
 );
 
