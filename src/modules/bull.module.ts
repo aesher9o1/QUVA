@@ -30,6 +30,7 @@ const MessageQueueModule = BullModule.registerQueueAsync({
 @Module({
   imports: [MessageQueueModule],
   providers: [WhatsappConsumer],
+  exports: [MessageQueueModule],
 })
 export class BullQueueManager implements NestModule {
   constructor(
