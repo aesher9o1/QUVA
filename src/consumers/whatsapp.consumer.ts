@@ -16,7 +16,7 @@ export class WhatsappConsumer {
 
   @Process()
   sendMessage(job: Job<ISubscriptionCollection>) {
-    console.log('Sending message');
+    console.log('Generating message');
     const info: string[] = [];
     job.data.centers.forEach((center) => {
       const message = [
@@ -44,9 +44,10 @@ export class WhatsappConsumer {
       message.push('*---*');
       info.push(message.join('\n'));
     });
+    console.log('Sending message');
     this.client
       .sendText(`${job.data.phoneNumber}@c.us`, info.join('\n\n'))
-      .then(() => console.log('Sent Message'))
+      .then(() => console.log('Sent message'))
       .catch((e) => console.log(e));
   }
 
