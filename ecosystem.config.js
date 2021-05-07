@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'QCINE',
       script: 'dist/main.js',
-      instances: 4,
+      instances: 1,
       exec_mode: 'cluster',
       autorestart: true,
       watch: false,
