@@ -16,29 +16,33 @@ export class WhatsappConsumer {
 
   @Process()
   sendMessage(job: Job<ISubscriptionCollection>) {
-    const test = [
-      {
-        name: 'Test Center',
-        address: 'Test Address',
-        pincode: '560061',
-        feeType: 'Free',
-        sessions: [
-          {
-            vaccine: 'Covaxine',
-            slots: ['9:00-10:00', '13:00-14:00'],
-          },
-        ],
-      },
-    ];
+    // const test = [
+    //   {
+    //     name: 'Test Center',
+    //     address: 'Test Address',
+    //     pincode: '560061',
+    //     feeType: 'Free',
+    //     sessions: [
+    //       {
+    //         vaccine: 'Covaxine',
+    //         slots: ['9:00-10:00', '13:00-14:00'],
+    //       },
+    //     ],
+    //   },
+    // ];
     const info: string[] = [];
     job.data.centers.forEach((center) => {
       info.push(
-        `Name: ${center.name}\nAddress: ${center.address}\nPin: ${
+        `*Name:* ${center.name}\n*Address:* ${center.address}\n*Pin Code:* ${
           center.pincode
-        }\Payment Method: ${center.feeType}\nSessions:\n${center.sessions
+        }\n*Payment Method:* ${
+          center.feeType
+        }\n*Sessions:*\n${center.sessions
           .map(
             (session) =>
-              `Vaccine: ${session.vaccine}\nSlots: ${session.slots.join(', ')}`,
+              `*Date:* ${session.date}\n*Vaccine:* ${
+                session.vaccine
+              }\n*Slots:*\n${session.slots.join(', ')}`,
           )
           .join('\n')}`,
       );
