@@ -21,7 +21,7 @@ jobs:
           echo "$SSH_KEY" > ~/.ssh/qcine.key
           chmod 600 ~/.ssh/qcine.key
           cat >>~/.ssh/config <<END
-          Host staging
+          Host qcine
             HostName $SSH_HOST
             User $SSH_USER
             IdentityFile ~/.ssh/qcine.key
@@ -32,6 +32,6 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
     
-    - name: Update git repository
+    - name: Redeploy project
       run: |
            ssh qcine 'cd Qcine && git pull && npm i && npm run build'
