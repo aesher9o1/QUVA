@@ -55,11 +55,8 @@ export class SlotManager {
       if (centers.length > 0) {
         const availableCenters: ICenterMini[] = [];
         centers.forEach((center) => {
-          const sessions = center.sessions;
-          const validSessions = sessions.filter(
-            (slot) =>
-              slot.min_age_limit <= this.age && slot.available_capacity > 0,
-            // slot.min_age_limit <= this.age,
+          const validSessions = center.sessions.filter(
+            (slot) => slot.available_capacity > 0,
           );
 
           if (validSessions.length > 0) {
@@ -68,7 +65,7 @@ export class SlotManager {
               address: center.address,
               pincode: center.pincode,
               feeType: center.fee_type,
-              sessions: center.sessions.map((session) => ({
+              sessions: validSessions.map((session) => ({
                 date: session.date,
                 availableCapacity: session.available_capacity,
                 minAgeLimit: session.min_age_limit,

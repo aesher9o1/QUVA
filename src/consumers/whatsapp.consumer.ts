@@ -16,36 +16,27 @@ export class WhatsappConsumer {
 
   @Process()
   sendMessage(job: Job<ISubscriptionCollection>) {
-    // const test = [
-    //   {
-    //     name: 'Test Center',
-    //     address: 'Test Address',
-    //     pincode: '560061',
-    //     feeType: 'Free',
-    //     sessions: [
-    //       {
-    //         vaccine: 'Covaxine',
-    //         slots: ['9:00-10:00', '13:00-14:00'],
-    //       },
-    //     ],
-    //   },
-    // ];
+    console.log('Sending message');
     const info: string[] = [];
     job.data.centers.forEach((center) => {
-      info.push(
-        `*Name:* ${center.name}\n*Address:* ${center.address}\n*Pin Code:* ${
-          center.pincode
-        }\n*Payment Method:* ${
-          center.feeType
-        }\n*Sessions:*\n${center.sessions
-          .map(
-            (session) =>
-              `*Date:* ${session.date}\n*Vaccine:* ${
-                session.vaccine
-              }\n*Slots:*\n${session.slots.join(', ')}`,
-          )
-          .join('\n')}`,
-      );
+      const message = [
+        `*Name:* ${center.name}`,
+        `*Address:* ${center.address}`,
+        `*Pin Code:* ${center.pincode}`,
+        `*Fee Type:* ${center.feeType}`,
+        `*---*`,
+        '*Available Sessions*',
+      ];
+      center.sessions.forEach((session) => {
+        message.push(`\n`);
+        message.push(`*Date:* ${session.date}`);
+        message.push(`*Age Group:* ${session.minAgeLimit}`);
+        message.push(`*Availability:* ${session.availableCapacity}`);
+        message.push(`*Vaccine:* ${session.vaccine}`);
+        message.push(`*Slots:* \n${session.slots.join(', ')}`);
+      });
+      message.push('*---*');
+      info.push(message.join('\n'));
     });
     this.client
       .sendText(`${job.data.phoneNumber}@c.us`, info.join('\n\n'))

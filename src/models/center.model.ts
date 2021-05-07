@@ -26,11 +26,13 @@ export interface ICenterMini {
   address: string;
   pincode: number;
   feeType: string;
-  sessions: {
-    date: string;
-    availableCapacity: number;
-    minAgeLimit: number;
-    vaccine: string;
-    slots: string[];
-  }[];
+  sessions: ISession[];
+}
+
+export interface ISession {
+  date: string;
+  availableCapacity: number;
+  minAgeLimit: number;
+  vaccine: string;
+  slots: string[];
 }
