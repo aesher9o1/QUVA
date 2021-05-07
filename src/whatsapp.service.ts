@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Injectable } from '@nestjs/common';
-import { Whatsapp, create } from 'venom-bot';
+import { Whatsapp, create, Message } from 'venom-bot';
 import { AlertHandler } from './utils/alerts.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
@@ -10,11 +10,13 @@ import { WhatsappCommands } from './models/commands.model';
 @Injectable()
 export class WhatsappService {
   private client: Whatsapp;
+  private pincodeRegex: RegExp;
   constructor(
     @InjectModel(SubscriberCollection.name)
     private subscriberModel: Model<SubscriberCollection>,
   ) {
     this.createSession();
+    this.pincodeRegex = new RegExp('^[1-9][0-9]{5}$');
   }
 
   private async createSession() {
@@ -41,47 +43,56 @@ export class WhatsappService {
     }
   }
 
-  private setMessageListener(client: Whatsapp) {
-    client.onMessage((message) => {
-      const PINCODE_REGEX = new RegExp('^[1-9][0-9]{5}$');
-      const command = message.body.split(' ')[0];
-
-      if (message.body) {
-        const phoneNumber = message.from.toString().split('@c.us')[0];
-
-        switch (command) {
-          case WhatsappCommands.NOTIFY:
-            const pincodeFromBody = message.body.split('notify ')[1];
-
-            if (pincodeFromBody && PINCODE_REGEX.test(pincodeFromBody)) {
-              this.addSubscriber(phoneNumber, pincodeFromBody);
-            }
-            break;
-          case WhatsappCommands.STOP:
-            this.subscriberModel.deleteMany({ phoneNumber });
-            break;
-        }
+  async addNumber(phoneNumber: string, pincode: string) {
+    if (pincode && this.pincodeRegex.test(pincode)) {
+      try {
+        await this.subscriberModel.updateOne(
+          {
+            phoneNumber,
+            pincode,
+          },
+          {
+            phoneNumber,
+            pincode,
+          },
+          {
+            upsert: true,
+          },
+        );
+        return `Alerts added for ${pincode}`;
+      } catch (e) {
+        return 'Something unexpected happened';
       }
-    });
+    } else {
+      return `Make sure the pincode entered is correct`;
+    }
   }
 
-  addSubscriber(phoneNumber: string, pincode: string) {
-    console.log(`Adding ${phoneNumber}`);
-    this.subscriberModel
-      .updateOne(
-        {
-          phoneNumber,
-          pincode,
-        },
-        {
-          phoneNumber,
-          pincode,
-        },
-        {
-          upsert: true,
-        },
-      )
-      .catch((err) => console.log(err));
+  private async removeNumber(phoneNumber: string) {
+    await this.subscriberModel.deleteMany({ phoneNumber });
+    return `All alerts have been removed`;
+  }
+
+  private setMessageListener(client: Whatsapp) {
+    client.onMessage(async (message) => {
+      if (!message.body) return;
+      const parts = message.body.toLowerCase().split(/ +/);
+      const command = parts.shift();
+      try {
+        let response: string;
+        switch (command) {
+          case WhatsappCommands.NOTIFY:
+            response = await this.addNumber(message.from, parts.shift());
+            break;
+          case WhatsappCommands.STOP:
+            response = await this.removeNumber(message.from);
+            break;
+        }
+        if (response) await client.sendText(message.from, response);
+      } catch (e) {
+        console.log(e);
+      }
+    });
   }
 
   async getClient() {

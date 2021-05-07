@@ -7,7 +7,7 @@ export class AppController {
 
   // @Get('addSubscriber')
   // addSubscriber(@Query('pin') pin: string, @Query('number') number: string) {
-  //   this.whatsappService.addSubscriber(number, pin);
+  //   this.whatsappService.addNumber(number, pin);
   //   return {
   //     message: 'DONE',
   //   };

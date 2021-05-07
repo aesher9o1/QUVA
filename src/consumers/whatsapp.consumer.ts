@@ -46,7 +46,7 @@ export class WhatsappConsumer {
     });
     console.log('Sending message');
     this.client
-      .sendText(`${job.data.phoneNumber}@c.us`, info.join('\n\n'))
+      .sendText(job.data.phoneNumber, info.join('\n\n'))
       .then(() => console.log('Sent message'))
       .catch((e) => console.log(e));
   }
