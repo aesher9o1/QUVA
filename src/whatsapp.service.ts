@@ -106,7 +106,7 @@ export class WhatsappService {
           case WhatsappCommands.LIST:
             response = await this.listPins(message.from);
             break;
-          case WhatsappCommands.HELP:
+          default:
             response = this.help();
             break;
         }
