@@ -2,22 +2,17 @@ import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
 import { ISubscriptionCollection } from 'src/models/subscriber.model';
 import { WhatsappService } from 'src/whatsapp.service';
-import { Whatsapp } from 'venom-bot';
 import { BullQueueNames } from '../utils/config.utils';
 
 @Processor(BullQueueNames.WHATSAPP_ALERTS)
 export class WhatsappConsumer {
-  client: Whatsapp;
-  constructor(private readonly whatsappService: WhatsappService) {
-    this.whatsappService.getClient().then((client) => {
-      this.client = client;
-    });
-  }
+  constructor(private readonly whatsappService: WhatsappService) {}
 
   @Process()
   sendMessage(job: Job<ISubscriptionCollection>) {
     console.log('Generating message');
     const info: string[] = [];
+    if (!job.data?.centers) return;
     job.data.centers.forEach((center) => {
       const message = [
         `*Name:* ${center.name}`,
@@ -45,10 +40,12 @@ export class WhatsappConsumer {
       info.push(message.join('\n'));
     });
     console.log('Sending message');
-    this.client
-      .sendText(job.data.phoneNumber, info.join('\n\n'))
-      .then(() => console.log('Sent message'))
-      .catch((e) => console.log(e));
+    this.whatsappService.getClient().then((client) => {
+      client
+        .sendText(job.data.phoneNumber, info.join('\n\n'))
+        .then(() => console.log('Sent message'))
+        .catch((e) => console.log(e));
+    });
   }
 
   @OnQueueError()

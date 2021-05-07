@@ -20,7 +20,7 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async sendUpdate() {
     try {
       console.log('Sending Update');
