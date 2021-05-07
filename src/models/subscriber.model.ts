@@ -21,5 +21,5 @@ export const SubscriberSchema = SchemaFactory.createForClass(
 export interface ISubscriptionCollection {
   pincode: SubscriberCollection['pincode'];
   phoneNumber: SubscriberCollection['phoneNumber'];
-  data: ICenterMini[][];
+  centers: ICenterMini[];
 }

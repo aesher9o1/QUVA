@@ -11,11 +11,18 @@ export class SlotManager {
     this.age = age;
   }
 
-  async checkAvailibility(): Promise<ICenterMini[][]> {
+  async checkAvailibility(): Promise<ICenterMini[]> {
     const datesArray = this.fetchNext10Days();
-    const promises = datesArray.map((date) => this.getSlotsForDate(date));
-    const res = await Promise.all(promises);
-    return res;
+    const availableCenters: ICenterMini[] = [];
+    const tasks = [];
+    datesArray.forEach((date) => {
+      tasks.push(this.getSlotsForDate(date));
+    });
+    const res: ICenterMini[][] = await Promise.all(tasks);
+    res.forEach((center) => {
+      if (center) availableCenters.push(...center);
+    });
+    return availableCenters;
   }
 
   private fetchNext10Days() {
@@ -49,22 +56,22 @@ export class SlotManager {
         const availableCenters: ICenterMini[] = [];
         centers.forEach((center) => {
           const sessions = center.sessions;
-          const validSlots = sessions.filter(
+          const validSessions = sessions.filter(
             (slot) =>
               slot.min_age_limit <= this.age && slot.available_capacity > 0,
             // slot.min_age_limit <= this.age,
           );
 
-          if (validSlots.length > 0) {
+          if (validSessions.length > 0) {
             availableCenters.push({
               name: center.name,
               address: center.address,
-              fee_type: center.fee_type,
               pincode: center.pincode,
+              feeType: center.fee_type,
               sessions: center.sessions.map((session) => ({
                 date: session.date,
-                available_capacity: session.available_capacity,
-                min_age_limit: session.min_age_limit,
+                availableCapacity: session.available_capacity,
+                minAgeLimit: session.min_age_limit,
                 vaccine: session.vaccine,
                 slots: session.slots,
               })),
@@ -74,7 +81,8 @@ export class SlotManager {
         return availableCenters;
       }
     } catch (e) {
-      // handle the catch
+      console.log(e);
+      return [];
     }
   }
 }

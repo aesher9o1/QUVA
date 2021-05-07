@@ -15,23 +15,38 @@ export class WhatsappConsumer {
   }
 
   @Process()
-  async sendMessage(job: Job<ISubscriptionCollection>) {
+  sendMessage(job: Job<ISubscriptionCollection>) {
+    const test = [
+      {
+        name: 'Test Center',
+        address: 'Test Address',
+        pincode: '560061',
+        feeType: 'Free',
+        sessions: [
+          {
+            vaccine: 'Covaxine',
+            slots: ['9:00-10:00', '13:00-14:00'],
+          },
+        ],
+      },
+    ];
     const info: string[] = [];
-    job.data.data.forEach((centers) => {
-      centers.forEach((center) => {
-        info.push(
-          `Name: ${center.name}\nAddress: ${center.address}\nPin: ${
-            center.pincode
-          }\nFee: ${center.fee_type}\nSessions:${center.sessions
-            .map((session) => ({
-              vaccine: session.vaccine,
-              slots: session.slots.join(', '),
-            }))
-            .join('\n')}`,
-        );
-      });
+    job.data.centers.forEach((center) => {
+      info.push(
+        `Name: ${center.name}\nAddress: ${center.address}\nPin: ${
+          center.pincode
+        }\Payment Method: ${center.feeType}\nSessions:\n${center.sessions
+          .map(
+            (session) =>
+              `Vaccine: ${session.vaccine}\nSlots: ${session.slots.join(', ')}`,
+          )
+          .join('\n')}`,
+      );
     });
-    this.client.sendText(job.data.phoneNumber, info.join('\n\n'));
+    this.client
+      .sendText(`${job.data.phoneNumber}@c.us`, info.join('\n\n'))
+      .then(() => console.log('Sent Message'))
+      .catch((e) => console.log(e));
   }
 
   @OnQueueError()

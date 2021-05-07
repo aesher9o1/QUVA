@@ -20,32 +20,42 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_SECOND)
+  // @Cron(CronExpression.EVERY_30_SECONDS)
   async sendUpdate() {
-    // add data to queue like this
-    // this.messageQueue.add({});
-    console.log('Sending Update');
-    const res = await this.subscriberModel.aggregate([
-      {
-        $group: {
-          _id: '$pincode',
-          phoneNumber: {
-            $push: '$$ROOT.phoneNumber',
+    try {
+      console.log('Sending Update');
+      const res = await this.subscriberModel.aggregate([
+        {
+          $group: {
+            _id: '$pincode',
+            phoneNumber: {
+              $push: '$$ROOT.phoneNumber',
+            },
           },
         },
-      },
-    ]);
-    res.forEach((entry) => {
-      const slotManager = new SlotManager(entry._id, 200);
-      slotManager.checkAvailibility().then((availables) => {
-        entry.phoneNumber.forEach((number) => {
-          this.messageQueue.add({
-            pincode: entry._id,
-            phoneNumber: number,
-            data: availables,
+      ]);
+      res.forEach((entry) => {
+        const slotManager = new SlotManager(entry._id, 200);
+        slotManager
+          .checkAvailibility()
+          .then((availables) => {
+            console.log(availables);
+            entry.phoneNumber.forEach((number: string) => {
+              this.messageQueue
+                .add({
+                  pincode: entry._id,
+                  phoneNumber: number,
+                  centers: availables,
+                })
+                .catch((e) => console.log(e));
+            });
+          })
+          .catch((e) => {
+            console.log(e);
           });
-        });
       });
-    });
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
