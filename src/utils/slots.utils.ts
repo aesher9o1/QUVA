@@ -51,8 +51,8 @@ export class SlotManager {
           const sessions = center.sessions;
           const validSlots = sessions.filter(
             (slot) =>
-              // slot.min_age_limit <= this.age && slot.available_capacity > 0,
-              slot.min_age_limit <= this.age,
+              slot.min_age_limit <= this.age && slot.available_capacity > 0,
+            // slot.min_age_limit <= this.age,
           );
 
           if (validSlots.length > 0) {

@@ -20,10 +20,11 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_SECOND)
   async sendUpdate() {
     // add data to queue like this
     // this.messageQueue.add({});
+    console.log('Sending Update');
     const res = await this.subscriberModel.aggregate([
       {
         $group: {

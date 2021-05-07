@@ -6,6 +6,11 @@ import { BullAdapter } from 'bull-board/bullAdapter';
 import { BullQueueNames } from '../utils/config.utils';
 import { WhatsappConsumer } from 'src/consumers/whatsapp.consumer';
 import { WhatsappService } from 'src/whatsapp.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import {
+  SubscriberCollection,
+  SubscriberSchema,
+} from 'src/models/subscriber.model';
 
 const MessageQueueModule = BullModule.registerQueueAsync({
   name: BullQueueNames.WHATSAPP_ALERTS,
@@ -29,7 +34,12 @@ const MessageQueueModule = BullModule.registerQueueAsync({
 });
 
 @Module({
-  imports: [MessageQueueModule],
+  imports: [
+    MessageQueueModule,
+    MongooseModule.forFeature([
+      { name: SubscriberCollection.name, schema: SubscriberSchema },
+    ]),
+  ],
   providers: [WhatsappConsumer, WhatsappService],
   exports: [MessageQueueModule],
 })

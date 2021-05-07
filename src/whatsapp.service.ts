@@ -30,6 +30,7 @@ export class WhatsappService {
           headless: true,
           debug: false,
           logQR: false,
+          disableSpins: true,
         },
       );
 
