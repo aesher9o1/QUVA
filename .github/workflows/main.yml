@@ -14,6 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    
     - name: Configure SSH
       run: |
           mkdir -p ~/.ssh/
@@ -30,3 +31,11 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
+    
+    - name: Update git repository
+      run: |
+           cd Qcine
+           git pull
+           npm i
+           npm run build
+           pm2 start
