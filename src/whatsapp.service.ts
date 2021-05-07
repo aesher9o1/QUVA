@@ -5,6 +5,7 @@ import { AlertHandler } from './utils/alerts.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
 import { Model } from 'mongoose';
+import { WhatsappCommands } from './models/commands.model';
 
 @Injectable()
 export class WhatsappService {
@@ -43,13 +44,22 @@ export class WhatsappService {
   private setMessageListener(client: Whatsapp) {
     client.onMessage((message) => {
       const PINCODE_REGEX = new RegExp('^[1-9][0-9]{5}$');
+      const command = message.body.split(' ')[0];
 
       if (message.body) {
-        const pincodeFromBody = message.body.split('notify ')[1];
+        const phoneNumber = message.from.toString().split('@c.us')[0];
 
-        if (pincodeFromBody && PINCODE_REGEX.test(pincodeFromBody)) {
-          const phoneNumber = message.from.toString().split('@c.us')[0];
-          this.addSubscriber(phoneNumber, pincodeFromBody);
+        switch (command) {
+          case WhatsappCommands.NOTIFY:
+            const pincodeFromBody = message.body.split('notify ')[1];
+
+            if (pincodeFromBody && PINCODE_REGEX.test(pincodeFromBody)) {
+              this.addSubscriber(phoneNumber, pincodeFromBody);
+            }
+            break;
+          case WhatsappCommands.STOP:
+            this.subscriberModel.deleteMany({ phoneNumber });
+            break;
         }
       }
     });
