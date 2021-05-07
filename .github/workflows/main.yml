@@ -15,23 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     
-    - name: Configure SSH
-      run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/qcine.key
-          chmod 600 ~/.ssh/qcine.key
-          cat >>~/.ssh/config <<END
-          Host qcine
-            HostName $SSH_HOST
-            User $SSH_USER
-            IdentityFile ~/.ssh/qcine.key
-            StrictHostKeyChecking no
-          END
-      env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-    
-    - name: Redeploy project
-      run: |
-           ssh qcine 'cd Qcine && git pull && npm i && npm run build'
+    - name: SSH
+      uses: appleboy/ssh-action@master
+      with: 
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: whoami
