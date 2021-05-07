@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Injectable } from '@nestjs/common';
-import { Whatsapp, create, Message } from 'venom-bot';
+import { Whatsapp, create } from 'venom-bot';
 import { AlertHandler } from './utils/alerts.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
@@ -73,6 +73,22 @@ export class WhatsappService {
     return `All alerts have been removed`;
   }
 
+  private async listPins(phoneNumber: string) {
+    const res = await this.subscriberModel.find({ phoneNumber });
+    return `Listening to alerts for pincodes: \n${res
+      .map((doc, index) => `${index + 1}. ${doc.pincode}`)
+      .join('\n')}`;
+  }
+
+  private help() {
+    return [
+      '- To recieve notifications for a certain pincode, simply type *notify <pincode>*.',
+      '- You can be notified about multiple pincodes at a time with updates on an hourly basis.',
+      '- To stop notifications, type in *stop* whereafter no messages will be sent until you ask for notifications again.',
+      '- To view the list of pins you are notified about, type in *list*.',
+    ].join('\n');
+  }
+
   private setMessageListener(client: Whatsapp) {
     client.onMessage(async (message) => {
       if (!message.body) return;
@@ -86,6 +102,12 @@ export class WhatsappService {
             break;
           case WhatsappCommands.STOP:
             response = await this.removeNumber(message.from);
+            break;
+          case WhatsappCommands.LIST:
+            response = await this.listPins(message.from);
+            break;
+          case WhatsappCommands.HELP:
+            response = this.help();
             break;
         }
         if (response) await client.sendText(message.from, response);
