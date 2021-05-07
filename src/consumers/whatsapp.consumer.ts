@@ -15,23 +15,40 @@ export class WhatsappConsumer {
   }
 
   @Process()
-  async sendMessage(job: Job<ISubscriptionCollection>) {
+  sendMessage(job: Job<ISubscriptionCollection>) {
+    console.log('Generating message');
     const info: string[] = [];
-    job.data.data.forEach((centers) => {
-      centers.forEach((center) => {
-        info.push(
-          `Name: ${center.name}\nAddress: ${center.address}\nPin: ${
-            center.pincode
-          }\nFee: ${center.fee_type}\nSessions:${center.sessions
-            .map((session) => ({
-              vaccine: session.vaccine,
-              slots: session.slots.join(', '),
-            }))
-            .join('\n')}`,
+    job.data.centers.forEach((center) => {
+      const message = [
+        `*Name:* ${center.name}`,
+        `*Address:* ${center.address}`,
+        `*Pin Code:* ${center.pincode}`,
+        `*Fee Type:* ${center.feeType}`,
+        '*Available Sessions:*',
+        `*---*`,
+      ];
+      center.sessions.forEach((session, index) => {
+        if (index !== 0) message.push(`\n`);
+        message.push(`*Date:* ${session.date}`);
+        message.push(`*Age Group:* ${session.minAgeLimit}`);
+        message.push(`*Availability:* ${session.availableCapacity}`);
+        message.push(`*Vaccine:* ${session.vaccine}`);
+        message.push(
+          `*Slots:* ${
+            session.slots.length > 0
+              ? `\n${session.slots.join(', ')}`
+              : 'Slot Information Unavailable'
+          }`,
         );
       });
+      message.push('*---*');
+      info.push(message.join('\n'));
     });
-    this.client.sendText(job.data.phoneNumber, info.join('\n\n'));
+    console.log('Sending message');
+    this.client
+      .sendText(job.data.phoneNumber, info.join('\n\n'))
+      .then(() => console.log('Sent message'))
+      .catch((e) => console.log(e));
   }
 
   @OnQueueError()

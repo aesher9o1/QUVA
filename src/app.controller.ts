@@ -1,6 +1,5 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { CronService } from './cron.service';
-import { WhatsappService } from './whatsapp.service';
 
 @Controller()
 export class AppController {
@@ -8,7 +7,7 @@ export class AppController {
 
   // @Get('addSubscriber')
   // addSubscriber(@Query('pin') pin: string, @Query('number') number: string) {
-  //   this.whatsappService.addSubscriber(number, pin);
+  //   this.whatsappService.addNumber(number, pin);
   //   return {
   //     message: 'DONE',
   //   };
