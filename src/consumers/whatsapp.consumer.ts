@@ -24,16 +24,22 @@ export class WhatsappConsumer {
         `*Address:* ${center.address}`,
         `*Pin Code:* ${center.pincode}`,
         `*Fee Type:* ${center.feeType}`,
+        '*Available Sessions:*',
         `*---*`,
-        '*Available Sessions*',
       ];
-      center.sessions.forEach((session) => {
-        message.push(`\n`);
+      center.sessions.forEach((session, index) => {
+        if (index !== 0) message.push(`\n`);
         message.push(`*Date:* ${session.date}`);
         message.push(`*Age Group:* ${session.minAgeLimit}`);
         message.push(`*Availability:* ${session.availableCapacity}`);
         message.push(`*Vaccine:* ${session.vaccine}`);
-        message.push(`*Slots:* \n${session.slots.join(', ')}`);
+        message.push(
+          `*Slots:* ${
+            session.slots.length > 0
+              ? `\n${session.slots.join(', ')}`
+              : 'Slot Information Unavailable'
+          }`,
+        );
       });
       message.push('*---*');
       info.push(message.join('\n'));
