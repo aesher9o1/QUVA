@@ -34,8 +34,4 @@ jobs:
     
     - name: Update git repository
       run: |
-           cd Qcine
-           git pull
-           npm i
-           npm run build
-           pm2 start
+           ssh qcine 'cd Qcine && git pull && npm i && npm run build'
