@@ -1,6 +1,7 @@
 import moment from 'moment';
 import axios from 'axios';
 import { ICenter, ICenterMini } from 'src/models/center.model';
+import { AlertHandler } from './alerts.utils';
 
 export class SlotManager {
   pincode: string;
@@ -78,7 +79,7 @@ export class SlotManager {
         return availableCenters;
       }
     } catch (e) {
-      console.log(e);
+      new AlertHandler().sendText(JSON.stringify(e));
     }
   }
 }
