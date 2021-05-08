@@ -31,7 +31,7 @@ export class WhatsappService {
         () => {},
         {
           useChrome: false,
-          updatesLog: false,
+          updatesLog: true,
           headless: true,
           debug: false,
           logQR: false,
