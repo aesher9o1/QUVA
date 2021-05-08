@@ -12,8 +12,8 @@ export class SubscriberCollection extends Document {
   pincode: string;
   @Prop({ type: String, required: true })
   phoneNumber: string;
-  @Prop({ type: String, required: false })
-  age: string;
+  @Prop({ type: Number, required: false })
+  age: number;
 }
 
 export const SubscriberSchema = SchemaFactory.createForClass(
@@ -24,4 +24,5 @@ export interface ISubscriptionCollection {
   pincode: SubscriberCollection['pincode'];
   phoneNumber: SubscriberCollection['phoneNumber'];
   centers: ICenterMini[];
+  age: number;
 }

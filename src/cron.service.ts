@@ -25,7 +25,7 @@ export class CronService {
     try {
       const res: {
         _id: string;
-        data: { phoneNumber: string; age?: string }[];
+        data: { phoneNumber: string; age?: number }[];
       }[] = await this.subscriberModel.aggregate([
         {
           $group: {
@@ -51,11 +51,12 @@ export class CronService {
                   pincode: entry._id,
                   phoneNumber: doc.phoneNumber,
                   centers: availables,
+                  age: doc.age,
                 })
-                .catch((e) => {});
+                .catch(() => {});
             });
           })
-          .catch((e) => {});
+          .catch(() => {});
       });
     } catch (e) {}
   }

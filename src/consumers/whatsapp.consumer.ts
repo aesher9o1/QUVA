@@ -1,6 +1,7 @@
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
 import _ from 'lodash';
+import { ICenterMini } from 'src/models/center.model';
 import { ISubscriptionCollection } from 'src/models/subscriber.model';
 import { AlertHandler } from 'src/utils/alerts.utils';
 import { WhatsappService } from 'src/whatsapp.service';
@@ -12,7 +13,7 @@ export class WhatsappConsumer {
 
   @Process()
   async sendMessage(job: Job<ISubscriptionCollection>) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       const info: string[] = [];
       if (_.isNil(job?.data?.centers)) {
         job.progress(100);
@@ -24,11 +25,23 @@ export class WhatsappConsumer {
             job.progress(100);
             resolve(true);
           } else {
+            if (job.data.age) {
+              const data: ICenterMini[] = [];
+              job.data.centers.forEach((center) => {
+                center.sessions = center.sessions.filter(
+                  (session) => session.minAgeLimit <= job.data.age,
+                );
+                if (center.sessions.length > 0) data.push(center);
+              });
+              job.data.centers = data;
+            }
             if (!job.data.centers.length) {
-              client.sendText(
-                job.data.phoneNumber,
-                `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
-              );
+              const text = `This is to notify you that there are no available slots at ${
+                job.data.pincode
+              } ${
+                job.data.age ? `for the specified age of ${job.data.age}` : ''
+              } yet. However we'll keep notifying you about the updates`;
+              client.sendText(job.data.phoneNumber, text);
               job.progress(100);
               resolve(true);
             } else {
@@ -58,10 +71,9 @@ export class WhatsappConsumer {
                 message.push('*---*');
                 info.push(message.join('\n'));
               });
-
               client
                 .sendText(job.data.phoneNumber, info.join('\n\n'))
-                .catch((e: any) => {})
+                .catch(() => {})
                 .then(() => {
                   job.progress(100);
                   resolve(true);

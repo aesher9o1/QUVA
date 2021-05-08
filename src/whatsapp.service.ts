@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import _ from 'lodash';
 import { Injectable } from '@nestjs/common';
 import { Whatsapp, create } from 'venom-bot';
 import { AlertHandler } from './utils/alerts.utils';
@@ -6,7 +7,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
 import { Model } from 'mongoose';
 import { WhatsappCommands } from './models/commands.model';
-import _ from 'lodash';
 
 @Injectable()
 export class WhatsappService {
@@ -68,7 +68,7 @@ export class WhatsappService {
     }
   }
 
-  async addNumber(phoneNumber: string, pincode: string, age: string) {
+  async addNumber(phoneNumber: string, pincode: string, age: number) {
     pincode = pincode.replace(/>/g, '').replace(/</g, '');
     if (pincode && this.pincodeRegex.test(pincode)) {
       this.client.sendText(
@@ -76,6 +76,7 @@ export class WhatsappService {
         `You have subscribed to vaccine slots notification. We pray for you and your family's safety and welfare. *Team QuillBot*`,
       );
       try {
+        if (isNaN(age)) age = null;
         await this.subscriberModel.updateOne(
           {
             phoneNumber,
@@ -91,7 +92,7 @@ export class WhatsappService {
             upsert: true,
           },
         );
-        return `Alerts added for ${pincode}`;
+        return `Alerts added for ${pincode} ${age ? `for age ${age}` : ''}`;
       } catch (e) {
         return 'Something unexpected happened';
       }
@@ -107,8 +108,11 @@ export class WhatsappService {
 
   private async listPins(phoneNumber: string) {
     const res = await this.subscriberModel.find({ phoneNumber });
-    return `Listening to alerts for pincodes: \n${res
-      .map((doc, index) => `${index + 1}. ${doc.pincode}`)
+    return `Listening to alerts for: \n${res
+      .map(
+        (doc, index) =>
+          `${index + 1}. ${doc.pincode} ${doc.age ? `(${doc.age})` : ''}`,
+      )
       .join('\n')}`;
   }
 
@@ -135,7 +139,7 @@ export class WhatsappService {
               response = await this.addNumber(
                 message.from,
                 parts.shift(),
-                parts.shift(),
+                parseInt(parts.shift()),
               );
               break;
             case WhatsappCommands.STOP:

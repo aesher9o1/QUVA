@@ -14,8 +14,8 @@ export class AppController {
   // }
 
   @Get('getSlots')
-  getSlots() {
-    this.cronService.sendUpdate();
+  async getSlots() {
+    await this.cronService.sendUpdate();
     return {
       message: 'DONE',
     };
