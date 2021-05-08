@@ -72,7 +72,7 @@ export class WhatsappService {
     if (pincode && this.pincodeRegex.test(pincode)) {
       this.client.sendText(
         phoneNumber,
-        `You have been subscribed to vaccine slots notification. We pray for you and your family's safety and wellfare. **Team Quillbot**`,
+        `You have been subscribed to vaccine slots notification. We pray for you and your family's safety and wellfare. *Team Quillbot*`,
       );
       try {
         await this.subscriberModel.updateOne(
