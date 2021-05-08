@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import _ from 'lodash';
 import { Injectable } from '@nestjs/common';
 import { Whatsapp, create } from 'venom-bot';
 import { AlertHandler } from './utils/alerts.utils';
@@ -6,7 +7,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
 import { Model } from 'mongoose';
 import { WhatsappCommands } from './models/commands.model';
-import _ from 'lodash';
 
 @Injectable()
 export class WhatsappService {
@@ -98,13 +98,19 @@ export class WhatsappService {
     }
   }
 
-  private async removeNumber(phoneNumber: string) {
-    await this.subscriberModel.deleteMany({ phoneNumber });
+  private async removeNumber(phoneNumber: string, pincode: string) {
+    const filter = { phoneNumber };
+    if (pincode) {
+      _.set(filter, 'pincode', pincode);
+    }
+    await this.subscriberModel.deleteMany(filter);
+    if (pincode) return `Removed alerts for ${pincode}`;
     return `All alerts have been removed`;
   }
 
   private async listPins(phoneNumber: string) {
     const res = await this.subscriberModel.find({ phoneNumber });
+    if (res.length === 0) return 'Not listening to any pincodes';
     return `Listening to alerts for pincodes: \n${res
       .map((doc, index) => `${index + 1}. ${doc.pincode}`)
       .join('\n')}`;
@@ -133,7 +139,7 @@ export class WhatsappService {
               response = await this.addNumber(message.from, parts.shift());
               break;
             case WhatsappCommands.STOP:
-              response = await this.removeNumber(message.from);
+              response = await this.removeNumber(message.from, parts.shift());
               break;
             case WhatsappCommands.LIST:
               response = await this.listPins(message.from);
