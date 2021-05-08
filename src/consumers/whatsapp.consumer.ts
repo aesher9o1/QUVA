@@ -1,6 +1,7 @@
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
 import _ from 'lodash';
+import * as moment from 'moment';
 import { ISubscriptionCollection } from 'src/models/subscriber.model';
 import { AlertHandler } from 'src/utils/alerts.utils';
 import { WhatsappService } from 'src/whatsapp.service';
@@ -12,6 +13,9 @@ export class WhatsappConsumer {
 
   @Process()
   async sendMessage(job: Job<ISubscriptionCollection>) {
+    const currentTime = new Date();
+    const sendInavailability =
+      currentTime.getHours() % 2 === 0 && currentTime.getMinutes() % 30 === 0;
     return new Promise(async (resolve, reject) => {
       const info: string[] = [];
       if (_.isNil(job?.data?.centers)) {
@@ -24,7 +28,7 @@ export class WhatsappConsumer {
             job.progress(100);
             resolve(true);
           } else {
-            if (!job.data.centers.length) {
+            if (!job.data.centers.length && sendInavailability) {
               client.sendText(
                 job.data.phoneNumber,
                 `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,

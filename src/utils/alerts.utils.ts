@@ -19,6 +19,10 @@ export class AlertHandler {
     const imgAsBase64 = image.substring(image.indexOf(',') + 1);
     fs.writeFileSync(`${filePrefix}.png`, imgAsBase64, 'base64');
 
+    // Prevent sending to slack channel for dev
+    if (process.env.NODE_ENV !== 'production')
+      return console.log('QR file loaded');
+
     const data = new FormData();
     data.append('channels', process.env.BOT_ALERT_CHANNEL);
     data.append('title', 'LOGIN TO WHATSAPP');
