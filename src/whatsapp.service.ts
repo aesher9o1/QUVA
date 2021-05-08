@@ -69,6 +69,7 @@ export class WhatsappService {
   }
 
   async addNumber(phoneNumber: string, pincode: string) {
+    pincode = pincode.replace(/>/g, '').replace(/</g, '');
     if (pincode && this.pincodeRegex.test(pincode)) {
       this.client.sendText(
         phoneNumber,
