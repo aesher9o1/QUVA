@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { SubscriberCollection } from './models/subscriber.model';
 import { Model } from 'mongoose';
 import { WhatsappCommands } from './models/commands.model';
+import _ from 'lodash';
 
 @Injectable()
 export class WhatsappService {
@@ -30,6 +31,7 @@ export class WhatsappService {
         () => {},
         {
           useChrome: false,
+          updatesLog: false,
           headless: true,
           debug: false,
           logQR: false,
@@ -117,32 +119,34 @@ export class WhatsappService {
   }
 
   private setMessageListener(client: Whatsapp) {
-    client.onMessage(async (message) => {
-      if (!message.body) return;
-      const parts = message.body.toLowerCase().split(/ +/);
-      const command = parts.shift();
+    if (!_.isNil(client)) {
+      client.onMessage(async (message) => {
+        if (!message.body) return;
+        const parts = message.body.toLowerCase().split(/ +/);
+        const command = parts.shift();
 
-      try {
-        let response: string;
-        switch (command) {
-          case WhatsappCommands.NOTIFY:
-            response = await this.addNumber(message.from, parts.shift());
-            break;
-          case WhatsappCommands.STOP:
-            response = await this.removeNumber(message.from);
-            break;
-          case WhatsappCommands.LIST:
-            response = await this.listPins(message.from);
-            break;
-          default:
-            response = this.help();
-            break;
+        try {
+          let response: string;
+          switch (command) {
+            case WhatsappCommands.NOTIFY:
+              response = await this.addNumber(message.from, parts.shift());
+              break;
+            case WhatsappCommands.STOP:
+              response = await this.removeNumber(message.from);
+              break;
+            case WhatsappCommands.LIST:
+              response = await this.listPins(message.from);
+              break;
+            default:
+              response = this.help();
+              break;
+          }
+          if (response) await client.sendText(message.from, response);
+        } catch (e) {
+          console.log(e);
         }
-        if (response) await client.sendText(message.from, response);
-      } catch (e) {
-        console.log(e);
-      }
-    });
+      });
+    }
   }
 
   async getClient() {
