@@ -23,12 +23,18 @@ export class CronService {
   @Cron(CronExpression.EVERY_30_MINUTES)
   async sendUpdate() {
     try {
-      const res = await this.subscriberModel.aggregate([
+      const res: {
+        _id: string;
+        data: { phoneNumber: string; age?: string }[];
+      }[] = await this.subscriberModel.aggregate([
         {
           $group: {
             _id: '$pincode',
-            phoneNumber: {
-              $addToSet: '$$ROOT.phoneNumber',
+            data: {
+              $addToSet: {
+                phoneNumber: '$$ROOT.phoneNumber',
+                age: '$$ROOT.age',
+              },
             },
           },
         },
@@ -39,11 +45,11 @@ export class CronService {
           .checkAvailibility()
           .then((availables) => {
             availables = availables || [];
-            entry.phoneNumber.forEach((number: string) => {
+            entry.data.forEach((doc) => {
               this.messageQueue
                 .add({
                   pincode: entry._id,
-                  phoneNumber: number,
+                  phoneNumber: doc.phoneNumber,
                   centers: availables,
                 })
                 .catch((e) => {});

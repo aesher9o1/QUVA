@@ -68,7 +68,7 @@ export class WhatsappService {
     }
   }
 
-  async addNumber(phoneNumber: string, pincode: string) {
+  async addNumber(phoneNumber: string, pincode: string, age: string) {
     pincode = pincode.replace(/>/g, '').replace(/</g, '');
     if (pincode && this.pincodeRegex.test(pincode)) {
       this.client.sendText(
@@ -80,10 +80,12 @@ export class WhatsappService {
           {
             phoneNumber,
             pincode,
+            age,
           },
           {
             phoneNumber,
             pincode,
+            age,
           },
           {
             upsert: true,
@@ -130,7 +132,11 @@ export class WhatsappService {
           let response: string;
           switch (command) {
             case WhatsappCommands.NOTIFY:
-              response = await this.addNumber(message.from, parts.shift());
+              response = await this.addNumber(
+                message.from,
+                parts.shift(),
+                parts.shift(),
+              );
               break;
             case WhatsappCommands.STOP:
               response = await this.removeNumber(message.from);
