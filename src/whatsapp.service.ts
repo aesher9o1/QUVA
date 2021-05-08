@@ -121,6 +121,7 @@ export class WhatsappService {
       if (!message.body) return;
       const parts = message.body.toLowerCase().split(/ +/);
       const command = parts.shift();
+
       try {
         let response: string;
         switch (command) {

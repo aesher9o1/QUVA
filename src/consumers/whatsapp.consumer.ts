@@ -20,7 +20,7 @@ export class WhatsappConsumer {
         client
           .sendText(
             job.data.phoneNumber,
-            `This is no notify you that there are no available slots at your desired location yet. However we'll keep notifying you about the updates`,
+            `This is no notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
           )
           .then(() => console.log('Sent message'))
           .catch((e) => console.log(e));
