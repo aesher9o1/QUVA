@@ -27,7 +27,7 @@ export class WhatsappConsumer {
             if (!job.data.centers.length) {
               client.sendText(
                 job.data.phoneNumber,
-                `This is no notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
+                `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
               );
               job.progress(100);
               resolve(true);
