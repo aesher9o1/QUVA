@@ -36,12 +36,10 @@ export class WhatsappConsumer {
               job.data.centers = data;
             }
             if (!job.data.centers.length) {
-              const text = `This is to notify you that there are no available slots at ${
-                job.data.pincode
-              } ${
-                job.data.age ? `for the specified age of ${job.data.age}` : ''
-              } yet. However we'll keep notifying you about the updates`;
-              client.sendText(job.data.phoneNumber, text);
+              // client.sendText(
+              //   job.data.phoneNumber,
+              //   `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
+              // );
               job.progress(100);
               resolve(true);
             } else {
