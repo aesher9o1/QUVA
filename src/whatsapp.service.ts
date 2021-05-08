@@ -119,7 +119,8 @@ export class WhatsappService {
   private help() {
     return [
       '- To recieve notifications for a certain pincode, simply type *notify <pincode>*.',
-      '- You can be notified about multiple pincodes at a time with updates on an hourly basis.',
+      '- Notifications will only be sent if slots are available',
+      '- You can be notified about multiple pincodes at a time',
       '- To stop notifications, type in *stop* whereafter no messages will be sent until you ask for notifications again.',
       '- To view the list of pins you are notified about, type in *list*.',
     ].join('\n');
