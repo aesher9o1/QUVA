@@ -20,6 +20,7 @@ export class WhatsappService {
   }
 
   private async createSession() {
+    console.log('gkhgjhgjhgjgbjhkgjh');
     try {
       this.client = await create(
         'qcine',
@@ -29,7 +30,7 @@ export class WhatsappService {
         },
         () => {},
         {
-          useChrome: false,
+          useChrome: true,
           headless: true,
           debug: false,
           logQR: false,

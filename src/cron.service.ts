@@ -20,16 +20,15 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async sendUpdate() {
     try {
-      console.log('Sending Update');
       const res = await this.subscriberModel.aggregate([
         {
           $group: {
             _id: '$pincode',
             phoneNumber: {
-              $push: '$$ROOT.phoneNumber',
+              $addToSet: '$phoneNumber',
             },
           },
         },
@@ -40,8 +39,6 @@ export class CronService {
           .checkAvailibility()
           .then((availables) => {
             availables = availables || [];
-
-            console.log(`Acquired ${availables.length} places`);
             entry.phoneNumber.forEach((number: string) => {
               this.messageQueue
                 .add({
