@@ -11,10 +11,8 @@ export class WhatsappConsumer {
 
   @Process()
   async sendMessage(job: Job<ISubscriptionCollection>) {
-    console.log('Generating message');
     const info: string[] = [];
-
-    if (!job.data?.centers) return;
+    if (!job?.data?.centers) return;
 
     try {
       const client = await this.whatsappService.getClient();
@@ -54,7 +52,7 @@ export class WhatsappConsumer {
         info.push(message.join('\n'));
       });
 
-      client.sendText(job.data.phoneNumber, info.join('\n\n'));
+      client.sendText(job.data.phoneNumber, info.join('\n\n')).catch((e) => {});
     } catch (e) {
       new AlertHandler().sendText(JSON.stringify(e));
     }

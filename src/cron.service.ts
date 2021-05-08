@@ -28,7 +28,7 @@ export class CronService {
           $group: {
             _id: '$pincode',
             phoneNumber: {
-              $addToSet: '$phoneNumber',
+              $addToSet: '$$ROOT.phoneNumber',
             },
           },
         },
@@ -46,15 +46,11 @@ export class CronService {
                   phoneNumber: number,
                   centers: availables,
                 })
-                .catch((e) => console.log(e));
+                .catch((e) => {});
             });
           })
-          .catch((e) => {
-            console.log(e);
-          });
+          .catch((e) => {});
       });
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   }
 }
