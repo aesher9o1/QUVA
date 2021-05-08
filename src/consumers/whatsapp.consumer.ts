@@ -1,5 +1,6 @@
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
+import _ from 'lodash';
 import { ISubscriptionCollection } from 'src/models/subscriber.model';
 import { AlertHandler } from 'src/utils/alerts.utils';
 import { WhatsappService } from 'src/whatsapp.service';
