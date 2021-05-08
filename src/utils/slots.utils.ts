@@ -22,7 +22,7 @@ export class SlotManager {
     res.forEach((center) => {
       if (center) availableCenters.push(...center);
     });
-    if (availableCenters.length > 0) return availableCenters;
+    return availableCenters;
   }
 
   private fetchNext10Days() {

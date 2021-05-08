@@ -12,7 +12,20 @@ export class WhatsappConsumer {
   sendMessage(job: Job<ISubscriptionCollection>) {
     console.log('Generating message');
     const info: string[] = [];
+
     if (!job.data?.centers) return;
+
+    if (!job.data.centers.length) {
+      this.whatsappService.getClient().then((client) => {
+        client
+          .sendText(
+            job.data.phoneNumber,
+            `This is no notify you that there are no available slots at your desired location yet. However we'll keep notifying you about the updates`,
+          )
+          .then(() => console.log('Sent message'))
+          .catch((e) => console.log(e));
+      });
+    }
     job.data.centers.forEach((center) => {
       const message = [
         `*Name:* ${center.name}`,

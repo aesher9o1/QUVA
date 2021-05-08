@@ -39,7 +39,8 @@ export class CronService {
         slotManager
           .checkAvailibility()
           .then((availables) => {
-            if (!availables) return;
+            availables = availables || [];
+
             console.log(`Acquired ${availables.length} places`);
             entry.phoneNumber.forEach((number: string) => {
               this.messageQueue
