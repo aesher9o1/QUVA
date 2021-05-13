@@ -106,21 +106,42 @@ export class WhatsappService {
     return `All alerts have been removed`;
   }
 
+  private async ageUpdate(phoneNumber: string, age: number) {
+    let age_text = 'Age filter set to ';
+    await this.subscriberModel.updateMany({ phoneNumber }, { $set: { age } });
+    if (_.eq(age, 18)) {
+      age_text += '18-44';
+    } else if (_.eq(age, 45)) {
+      age_text += '45+';
+    } else if (_.eq(age, -1)) {
+      age_text += 'all';
+    } else {
+      age_text =
+        'Invalid age filter provided. Age filter must be *18*, *45* or *both*';
+    }
+    return age_text;
+  }
+
   private async listPins(phoneNumber: string) {
     const res = await this.subscriberModel.find({ phoneNumber });
-    return `Listening to alerts for: \n${res
-      .map(
-        (doc, index) =>
-          `${index + 1}. ${doc.pincode} ${doc.age ? `(${doc.age})` : ''}`,
-      )
-      .join('\n')}`;
+    if (res.length > 0) {
+      return `Listening to alerts for: \n${res
+        .map(
+          (doc, index) =>
+            `${index + 1}. ${doc.pincode} ${doc.age ? `(${doc.age})` : ''}`,
+        )
+        .join('\n')}`;
+    } else {
+      return `You haven't subscribed to any pincodes.`;
+    }
   }
 
   private help() {
     return [
-      '- To recieve notifications for a certain pincode, simply type *notify <pincode>*.',
+      '- To recieve notifications for a certain pincode, simply type *notify pincode*, for example to subscribe for pincode 208026, type *notify 208026*',
       '- Notifications will only be sent if slots are available',
       '- You can be notified about multiple pincodes at a time',
+      '- You can also set age filter to *18*, *45* or *both*, for example to set age to 18+ filter simply type *age 18*',
       '- To stop notifications, type in *stop* whereafter no messages will be sent until you ask for notifications again.',
       '- To view the list of pins you are notified about, type in *list*.',
     ].join('\n');
@@ -146,6 +167,17 @@ export class WhatsappService {
             case WhatsappCommands.STOP:
               response = await this.removeNumber(message.from);
               break;
+            case WhatsappCommands.AGE:
+              const age_part = parts.shift();
+              let age = parseInt(age_part);
+              if (_.eq(age_part, 'both')) {
+                age = -1;
+              }
+              response = await this.ageUpdate(
+                message.from,
+                isNaN(age) ? 0 : age,
+              );
+              break;
             case WhatsappCommands.LIST:
               response = await this.listPins(message.from);
               break;
@@ -153,7 +185,12 @@ export class WhatsappService {
               response = this.help();
               break;
           }
-          if (response) await client.sendText(message.from, response);
+          if (response) {
+            await client.sendText(message.from, response);
+            try {
+              await client.deleteChat(message.from);
+            } catch (e) {}
+          }
         } catch (e) {
           console.log(e);
         }
