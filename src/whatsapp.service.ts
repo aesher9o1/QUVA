@@ -68,7 +68,7 @@ export class WhatsappService {
     }
   }
 
-  async addNumber(phoneNumber: string, pincode: string, age: number) {
+  async addNumber(phoneNumber: string, pincode: string) {
     pincode = pincode.replace(/>/g, '').replace(/</g, '');
     if (pincode && this.pincodeRegex.test(pincode)) {
       this.client.sendText(
@@ -76,23 +76,28 @@ export class WhatsappService {
         `You have subscribed to vaccine slots notification. We pray for you and your family's safety and welfare. *Team QuillBot*`,
       );
       try {
-        if (isNaN(age)) age = null;
+        const find_age = (
+          await this.subscriberModel.findOne({
+            phoneNumber,
+            age: { $ne: null },
+          })
+        )?.age;
+        console.log(find_age);
         await this.subscriberModel.updateOne(
           {
             phoneNumber,
             pincode,
-            age,
           },
           {
             phoneNumber,
             pincode,
-            age,
+            age: !_.isNaN(find_age) ? find_age : -1,
           },
           {
             upsert: true,
           },
         );
-        return `Alerts added for ${pincode} ${age ? `for age ${age}` : ''}`;
+        return `Alerts added for ${pincode}`;
       } catch (e) {
         return 'Something unexpected happened';
       }
@@ -155,11 +160,7 @@ export class WhatsappService {
           let response: string;
           switch (command) {
             case WhatsappCommands.NOTIFY:
-              response = await this.addNumber(
-                message.from,
-                parts.shift(),
-                parseInt(parts.shift()),
-              );
+              response = await this.addNumber(message.from, parts.shift());
               break;
             case WhatsappCommands.STOP:
               response = await this.removeNumber(message.from);
