@@ -55,7 +55,7 @@ export class WhatsappConsumer {
                 grouped_centers.forEach((center) => {
                   message.push(
                     ...[
-                      `*Name:* ${center[0].name} - ${center[0].center_id}`,
+                      `*Name:* ${center[0].name}`,
                       `*Address:* ${center[0].address}`,
                       `*Pin Code:* ${center[0].pincode}`,
                       `*Fee Type:* ${center[0].feeType}`,
