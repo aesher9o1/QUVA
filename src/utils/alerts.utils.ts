@@ -18,7 +18,6 @@ export class AlertHandler {
     const filePrefix = new Date().getTime().toString();
     const imgAsBase64 = image.substring(image.indexOf(',') + 1);
     fs.writeFileSync(`${filePrefix}.png`, imgAsBase64, 'base64');
-
     const data = new FormData();
     data.append('channels', process.env.BOT_ALERT_CHANNEL);
     data.append('title', 'LOGIN TO WHATSAPP');

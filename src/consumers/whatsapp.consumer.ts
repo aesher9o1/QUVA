@@ -14,6 +14,9 @@ export class WhatsappConsumer {
   @Process()
   async sendMessage(job: Job<ISubscriptionCollection>) {
     return new Promise(async (resolve) => {
+      const currentTime = new Date();
+      const sendInavailability =
+        currentTime.getHours() % 3 === 0 && currentTime.getMinutes() % 30 === 0;
       if (_.isNil(job?.data?.centers)) {
         job.progress(100);
         resolve(true);
@@ -37,11 +40,11 @@ export class WhatsappConsumer {
                 });
                 job.data.centers = data;
               }
-              if (!job.data.centers.length) {
-                // client.sendText(
-                //   job.data.phoneNumber,
-                //   `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
-                // );
+              if (!job.data.centers.length && sendInavailability) {
+                client.sendText(
+                  job.data.phoneNumber,
+                  `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates periodically.`,
+                );
                 job.progress(100);
                 resolve(true);
               } else {
