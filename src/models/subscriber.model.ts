@@ -10,9 +10,9 @@ import { ICenterMini } from './center.model';
 export class SubscriberCollection extends Document {
   @Prop({ type: String, required: true, index: true })
   pincode: string;
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, index: true })
   phoneNumber: string;
-  @Prop({ type: Number, required: false, default: -1 })
+  @Prop({ type: Number, required: false, default: -1, index: true })
   age: number;
 }
 
