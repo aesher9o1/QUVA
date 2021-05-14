@@ -24,67 +24,77 @@ export class WhatsappConsumer {
             job.progress(100);
             resolve(true);
           } else {
-            if (!_.isNil(job.data.age)) {
-              const data: ICenterMini[] = [];
-              job.data.centers.forEach((center) => {
-                center.sessions = center.sessions.filter(
-                  (session) =>
-                    _.eq(session.minAgeLimit, job.data.age) ||
-                    _.eq(job.data.age, -1),
-                );
-                if (center.sessions.length > 0) data.push(center);
-              });
-              job.data.centers = data;
-            }
-            if (!job.data.centers.length) {
-              // client.sendText(
-              //   job.data.phoneNumber,
-              //   `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
-              // );
-              job.progress(100);
-              resolve(true);
-            } else {
-              const message = [];
-              const grouped_centers = _.values(
-                _.groupBy(job.data.centers, 'center_id'),
-              );
-              grouped_centers.forEach((center) => {
-                message.push(
-                  ...[
-                    `*Name:* ${center[0].name} - ${center[0].center_id}`,
-                    `*Address:* ${center[0].address}`,
-                    `*Pin Code:* ${center[0].pincode}`,
-                    `*Fee Type:* ${center[0].feeType}`,
-                    `*Age Group:* ${center[0].sessions[0].minAgeLimit}`,
-                  ],
-                );
-                const sessions = _.uniqBy(
-                  _.flatMap(center.map((sub_center) => sub_center.sessions)),
-                  'date',
-                );
-                message.push(
-                  `*Vaccines:* ${_.uniq(
-                    sessions.map((session) => session.vaccine),
-                  ).join(', ')}`,
-                );
-                // message.push(
-                //   `*Time Slots:* ${_.uniq(
-                //     _.flatMapDeep(sessions.map((session) => session.slots)),
-                //   ).join(', ')}`,
-                // );
-                message.push('*Availability:*');
-                sessions.forEach((session, index) => {
-                  message.push(
-                    `\t\t\t\t\t\t\t\t\t\t\t*${
-                      index + 1
-                    }:*  ${session.date.replace(/-/g, '/')} *-* ${
-                      session.availableCapacity
-                    } slots${_.eq(index, sessions.length - 1) ? '\n' : ''}`,
+            if (_.isNil(job.data.message)) {
+              if (!_.isNil(job.data.age)) {
+                const data: ICenterMini[] = [];
+                job.data.centers.forEach((center) => {
+                  center.sessions = center.sessions.filter(
+                    (session) =>
+                      _.eq(session.minAgeLimit, job.data.age) ||
+                      _.eq(job.data.age, -1),
                   );
+                  if (center.sessions.length > 0) data.push(center);
                 });
-              });
+                job.data.centers = data;
+              }
+              if (!job.data.centers.length) {
+                // client.sendText(
+                //   job.data.phoneNumber,
+                //   `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates`,
+                // );
+                job.progress(100);
+                resolve(true);
+              } else {
+                const message = [];
+                const grouped_centers = _.values(
+                  _.groupBy(job.data.centers, 'center_id'),
+                );
+                grouped_centers.forEach((center) => {
+                  message.push(
+                    ...[
+                      `*Name:* ${center[0].name} - ${center[0].center_id}`,
+                      `*Address:* ${center[0].address}`,
+                      `*Pin Code:* ${center[0].pincode}`,
+                      `*Fee Type:* ${center[0].feeType}`,
+                      `*Age Group:* ${center[0].sessions[0].minAgeLimit}`,
+                    ],
+                  );
+                  const sessions = _.uniqBy(
+                    _.flatMap(center.map((sub_center) => sub_center.sessions)),
+                    'date',
+                  );
+                  message.push(
+                    `*Vaccines:* ${_.uniq(
+                      sessions.map((session) => session.vaccine),
+                    ).join(', ')}`,
+                  );
+                  // message.push(
+                  //   `*Time Slots:* ${_.uniq(
+                  //     _.flatMapDeep(sessions.map((session) => session.slots)),
+                  //   ).join(', ')}`,
+                  // );
+                  message.push('*Availability:*');
+                  sessions.forEach((session, index) => {
+                    message.push(
+                      `\t\t\t\t\t\t\t\t\t\t\t*${
+                        index + 1
+                      }:*  ${session.date.replace(/-/g, '/')} *-* ${
+                        session.availableCapacity
+                      } slots${_.eq(index, sessions.length - 1) ? '\n' : ''}`,
+                    );
+                  });
+                });
+                client
+                  .sendText(job.data.phoneNumber, message.join('\n'))
+                  .catch(() => {})
+                  .then(() => {
+                    job.progress(100);
+                    resolve(true);
+                  });
+              }
+            } else {
               client
-                .sendText(job.data.phoneNumber, message.join('\n'))
+                .sendText(job.data.phoneNumber, job.data.message)
                 .catch(() => {})
                 .then(() => {
                   job.progress(100);

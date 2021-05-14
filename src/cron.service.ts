@@ -60,4 +60,19 @@ export class CronService {
       });
     } catch (e) {}
   }
+
+  async sendAnnouncement(message: string) {
+    try {
+      const res = await this.subscriberModel.aggregate([
+        {
+          $group: {
+            _id: '$phoneNumber',
+          },
+        },
+      ]);
+      res.forEach((entry) => {
+        this.messageQueue.add({ phoneNumber: entry._id, message, pincode: '' });
+      });
+    } catch (e) {}
+  }
 }

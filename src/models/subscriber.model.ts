@@ -25,4 +25,5 @@ export interface ISubscriptionCollection {
   phoneNumber: SubscriberCollection['phoneNumber'];
   centers: ICenterMini[];
   age: number;
+  message?: string;
 }
