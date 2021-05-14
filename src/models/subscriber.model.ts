@@ -12,7 +12,7 @@ export class SubscriberCollection extends Document {
   pincode: string;
   @Prop({ type: String, required: true })
   phoneNumber: string;
-  @Prop({ type: Number, required: false })
+  @Prop({ type: Number, required: false, default: -1 })
   age: number;
 }
 
