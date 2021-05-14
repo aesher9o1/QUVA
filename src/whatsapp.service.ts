@@ -126,10 +126,7 @@ export class WhatsappService {
     const res = await this.subscriberModel.find({ phoneNumber });
     if (res.length > 0) {
       return `Listening to alerts for: \n${res
-        .map(
-          (doc, index) =>
-            `${index + 1}. ${doc.pincode} ${doc.age ? `(${doc.age})` : ''}`,
-        )
+        .map((doc, index) => `${index + 1}. ${doc.pincode}`)
         .join('\n')}`;
     } else {
       return `You haven't subscribed to any pincodes.`;
@@ -188,7 +185,7 @@ export class WhatsappService {
           if (response) {
             await client.sendText(message.from, response);
             try {
-              // await client.deleteChat(message.from);
+              await client.deleteChat(message.from);
             } catch (e) {}
           }
         } catch (e) {
