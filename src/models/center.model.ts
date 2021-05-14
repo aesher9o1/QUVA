@@ -22,6 +22,7 @@ export interface ICenter {
 }
 
 export interface ICenterMini {
+  center_id: number;
   name: string;
   address: string;
   pincode: number;

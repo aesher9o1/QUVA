@@ -117,7 +117,7 @@ export class WhatsappService {
       age_text += 'all';
     } else {
       age_text =
-        'Invalid age filter provided. Age filter must be *18*, *45* or *both*';
+        'Invalid age filter provided. Age filter must be *18*, *45* or *all*';
     }
     return age_text;
   }
@@ -138,10 +138,10 @@ export class WhatsappService {
 
   private help() {
     return [
-      '- To recieve notifications for a certain pincode, simply type *notify pincode*, for example to subscribe for pincode 208026, type *notify 208026*',
+      '- To receive notifications for a certain pincode, simply type *notify pincode*, for example to subscribe for pincode 208026, type *notify 208026*',
       '- Notifications will only be sent if slots are available',
       '- You can be notified about multiple pincodes at a time',
-      '- You can also set age filter to *18*, *45* or *both*, for example to set age to 18+ filter simply type *age 18*',
+      '- You can also set age filter to *18*, *45* or *all*, for example to set age to 18+ filter simply type *age 18*',
       '- To stop notifications, type in *stop* whereafter no messages will be sent until you ask for notifications again.',
       '- To view the list of pins you are notified about, type in *list*.',
     ].join('\n');
@@ -170,7 +170,7 @@ export class WhatsappService {
             case WhatsappCommands.AGE:
               const age_part = parts.shift();
               let age = parseInt(age_part);
-              if (_.eq(age_part, 'both')) {
+              if (_.eq(age_part, 'all')) {
                 age = -1;
               }
               response = await this.ageUpdate(
@@ -188,7 +188,7 @@ export class WhatsappService {
           if (response) {
             await client.sendText(message.from, response);
             try {
-              await client.deleteChat(message.from);
+              // await client.deleteChat(message.from);
             } catch (e) {}
           }
         } catch (e) {

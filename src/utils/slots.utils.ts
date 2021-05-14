@@ -62,6 +62,7 @@ export class SlotManager {
 
           if (validSessions.length > 0) {
             availableCenters.push({
+              center_id: center.center_id,
               name: center.name,
               address: center.address,
               pincode: center.pincode,

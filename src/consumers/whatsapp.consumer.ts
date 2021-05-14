@@ -14,7 +14,6 @@ export class WhatsappConsumer {
   @Process()
   async sendMessage(job: Job<ISubscriptionCollection>) {
     return new Promise(async (resolve) => {
-      const info: string[] = [];
       if (_.isNil(job?.data?.centers)) {
         job.progress(100);
         resolve(true);
@@ -25,11 +24,13 @@ export class WhatsappConsumer {
             job.progress(100);
             resolve(true);
           } else {
-            if (job.data.age) {
+            if (!_.isNil(job.data.age)) {
               const data: ICenterMini[] = [];
               job.data.centers.forEach((center) => {
                 center.sessions = center.sessions.filter(
-                  (session) => session.minAgeLimit <= job.data.age,
+                  (session) =>
+                    _.eq(session.minAgeLimit, job.data.age) ||
+                    _.eq(job.data.age, -1),
                 );
                 if (center.sessions.length > 0) data.push(center);
               });
@@ -43,34 +44,47 @@ export class WhatsappConsumer {
               job.progress(100);
               resolve(true);
             } else {
-              job.data.centers.forEach((center) => {
-                const message = [
-                  `*Name:* ${center.name}`,
-                  `*Address:* ${center.address}`,
-                  `*Pin Code:* ${center.pincode}`,
-                  `*Fee Type:* ${center.feeType}`,
-                  '*Available Sessions:*',
-                  `*---*`,
-                ];
-                center.sessions.forEach((session, index) => {
-                  if (index !== 0) message.push(`\n`);
-                  message.push(`*Date:* ${session.date}`);
-                  message.push(`*Age Group:* ${session.minAgeLimit}`);
-                  message.push(`*Availability:* ${session.availableCapacity}`);
-                  message.push(`*Vaccine:* ${session.vaccine}`);
+              const message = [];
+              const grouped_centers = _.values(
+                _.groupBy(job.data.centers, 'center_id'),
+              );
+              grouped_centers.forEach((center) => {
+                message.push(
+                  ...[
+                    `*Name:* ${center[0].name} - ${center[0].center_id}`,
+                    `*Address:* ${center[0].address}`,
+                    `*Pin Code:* ${center[0].pincode}`,
+                    `*Fee Type:* ${center[0].feeType}`,
+                    `*Age Group:* ${center[0].sessions[0].minAgeLimit}`,
+                  ],
+                );
+                const sessions = _.uniqBy(
+                  _.flatMap(center.map((sub_center) => sub_center.sessions)),
+                  'date',
+                );
+                message.push(
+                  `*Vaccines:* ${_.uniq(
+                    sessions.map((session) => session.vaccine),
+                  ).join(', ')}`,
+                );
+                // message.push(
+                //   `*Time Slots:* ${_.uniq(
+                //     _.flatMapDeep(sessions.map((session) => session.slots)),
+                //   ).join(', ')}`,
+                // );
+                message.push('*Availability:*');
+                sessions.forEach((session, index) => {
                   message.push(
-                    `*Slots:* ${
-                      session.slots.length > 0
-                        ? `\n${session.slots.join(', ')}`
-                        : 'Slot Information Unavailable'
-                    }`,
+                    `\t\t\t\t\t\t\t\t\t\t\t*${
+                      index + 1
+                    }:*  ${session.date.replace(/-/g, '/')} *-* ${
+                      session.availableCapacity
+                    } slots${_.eq(index, sessions.length - 1) ? '\n' : ''}`,
                   );
                 });
-                message.push('*---*');
-                info.push(message.join('\n'));
               });
               client
-                .sendText(job.data.phoneNumber, info.join('\n\n'))
+                .sendText(job.data.phoneNumber, message.join('\n'))
                 .catch(() => {})
                 .then(() => {
                   job.progress(100);
