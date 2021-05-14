@@ -27,24 +27,27 @@ export class WhatsappConsumer {
             job.progress(100);
             resolve(true);
           } else {
-            if (_.isNil(job.data.message)) {
-              if (!_.isNil(job.data.age)) {
-                const data: ICenterMini[] = [];
-                job.data.centers.forEach((center) => {
-                  center.sessions = center.sessions.filter(
-                    (session) =>
-                      _.eq(session.minAgeLimit, job.data.age) ||
-                      _.eq(job.data.age, -1),
-                  );
-                  if (center.sessions.length > 0) data.push(center);
-                });
-                job.data.centers = data;
-              }
-              if (!job.data.centers.length && sendInavailability) {
-                client.sendText(
-                  job.data.phoneNumber,
-                  `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates periodically.`,
+            // if (_.isNil(job.data.message)) {
+            if (!_.isNil(job.data.age)) {
+              const data: ICenterMini[] = [];
+              job.data.centers.forEach((center) => {
+                center.sessions = center.sessions.filter(
+                  (session) =>
+                    _.eq(session.minAgeLimit, job.data.age) ||
+                    _.eq(job.data.age, -1),
                 );
+                if (center.sessions.length > 0) data.push(center);
+              });
+              job.data.centers = data;
+            }
+            if (_.isNil(job.data.message)) {
+              if (!job.data.centers.length) {
+                if (sendInavailability) {
+                  client.sendText(
+                    job.data.phoneNumber,
+                    `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates periodically.`,
+                  );
+                }
                 job.progress(100);
                 resolve(true);
               } else {
@@ -89,7 +92,10 @@ export class WhatsappConsumer {
                 });
                 client
                   .sendText(job.data.phoneNumber, message.join('\n'))
-                  .catch(() => {})
+                  .catch(() => {
+                    job.progress(100);
+                    resolve(true);
+                  })
                   .then(() => {
                     job.progress(100);
                     resolve(true);
@@ -98,7 +104,10 @@ export class WhatsappConsumer {
             } else {
               client
                 .sendText(job.data.phoneNumber, job.data.message)
-                .catch(() => {})
+                .catch(() => {
+                  job.progress(100);
+                  resolve(true);
+                })
                 .then(() => {
                   job.progress(100);
                   resolve(true);
