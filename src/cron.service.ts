@@ -20,7 +20,7 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron('0 */15 * * * *')
   async sendUpdate() {
     try {
       const res: {
@@ -71,7 +71,13 @@ export class CronService {
         },
       ]);
       res.forEach((entry) => {
-        this.messageQueue.add({ phoneNumber: entry._id, message, pincode: '' });
+        this.messageQueue.add({
+          phoneNumber: entry._id,
+          message,
+          pincode: '',
+          age: 200,
+          centers: [] as any,
+        });
       });
     } catch (e) {}
   }
