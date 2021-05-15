@@ -11,7 +11,7 @@ import { BullQueueNames } from '../utils/config.utils';
 export class WhatsappConsumer {
   constructor(private readonly whatsappService: WhatsappService) {}
 
-  @Process()
+  @Process({ concurrency: 10 })
   async sendMessage(job: Job<ISubscriptionCollection>) {
     return new Promise(async (resolve) => {
       const currentTime = new Date();
