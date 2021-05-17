@@ -16,7 +16,7 @@ export class WhatsappConsumer {
     return new Promise(async (resolve) => {
       const currentTime = new Date();
       const sendInavailability =
-        currentTime.getHours() % 3 === 0 && currentTime.getMinutes() % 30 === 0;
+        currentTime.getHours() % 3 === 0 && currentTime.getMinutes() / 10 <= 1;
       if (_.isNil(job?.data?.centers)) {
         job.progress(100);
         resolve(true);
