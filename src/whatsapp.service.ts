@@ -152,6 +152,7 @@ export class WhatsappService {
   private setMessageListener(client: Whatsapp) {
     if (!_.isNil(client)) {
       client.onMessage(async (message) => {
+        console.log(`MESSAGE RECEIVED: ${message.body}`);
         if (!message.body) return;
         const parts = message.body.toLowerCase().split(/ +/);
         const command = parts.shift();
