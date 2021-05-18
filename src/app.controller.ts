@@ -1,10 +1,16 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import _ from 'lodash';
 import { CronService } from './cron.service';
+import { WhatsappService } from './whatsapp.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly cronService: CronService) {}
+  constructor(
+    private readonly cronService: CronService,
+    private readonly whatsappService: WhatsappService,
+  ) {
+    this.whatsappService.createSession();
+  }
 
   // @Get('addSubscriber')
   // addSubscriber(@Query('pin') pin: string, @Query('number') number: string) {

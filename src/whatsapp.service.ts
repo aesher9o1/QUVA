@@ -16,11 +16,10 @@ export class WhatsappService {
     @InjectModel(SubscriberCollection.name)
     private subscriberModel: Model<SubscriberCollection>,
   ) {
-    this.createSession();
     this.pincodeRegex = new RegExp('^[1-9][0-9]{5}$');
   }
 
-  private async createSession() {
+  public async createSession() {
     try {
       this.client = await create(
         'qcine',
@@ -31,8 +30,9 @@ export class WhatsappService {
         () => {},
         {
           useChrome: false,
-          updatesLog: true,
+          updatesLog: false,
           headless: true,
+          disableWelcome: true,
           debug: false,
           logQR: false,
           disableSpins: true,
