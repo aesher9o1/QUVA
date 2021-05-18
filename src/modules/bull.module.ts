@@ -21,14 +21,14 @@ const MessageQueueModule = BullModule.registerQueueAsync({
       removeOnComplete: true,
       delay: 250,
       removeOnFail: false,
-      attempts: 3,
+      attempts: 1,
     },
     prefix: 'WAPP',
     settings: {
       retryProcessDelay: 300,
       lockRenewTime: 1000,
       maxStalledCount: 0,
-      lockDuration: 300000,
+      lockDuration: 5000,
     },
   }),
 });
