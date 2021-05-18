@@ -184,12 +184,7 @@ export class WhatsappService {
               response = this.help();
               break;
           }
-          if (response) {
-            await client.sendText(message.from, response);
-            try {
-              // await client.deleteChat(message.from);
-            } catch (e) {}
-          }
+          if (response) await client.sendText(message.from, response);
         } catch (e) {
           console.log(e);
         }
