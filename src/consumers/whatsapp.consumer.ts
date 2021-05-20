@@ -15,9 +15,12 @@ export class WhatsappConsumer {
   async sendMessage(job: Job<ISubscriptionCollection>) {
     return new Promise(async (resolve) => {
       const currentTime = new Date();
-      const sendInavailability =
-        currentTime.getHours() % 3 === 0 && currentTime.getMinutes() % 30 === 0;
+      const sendInavailability = currentTime.getHours() % 3 === 0;
       if (_.isNil(job?.data?.centers)) {
+        job.progress(100);
+        resolve(true);
+      } else if (currentTime.getHours() > 2 && currentTime.getHours() < 5) {
+        //do not send updates at night. This will let the queue cool down a bit
         job.progress(100);
         resolve(true);
       } else {
@@ -90,16 +93,9 @@ export class WhatsappConsumer {
                     );
                   });
                 });
-                client
-                  .sendText(job.data.phoneNumber, message.join('\n'))
-                  .catch(() => {
-                    job.progress(100);
-                    resolve(true);
-                  })
-                  .then(() => {
-                    job.progress(100);
-                    resolve(true);
-                  });
+                client.sendText(job.data.phoneNumber, message.join('\n'));
+                job.progress(100);
+                resolve(true);
               }
             } else {
               client
@@ -125,6 +121,6 @@ export class WhatsappConsumer {
 
   @OnQueueError()
   async notifySlack(error: Error) {
-    console.log(error);
+    new AlertHandler().sendText(JSON.stringify(error));
   }
 }
