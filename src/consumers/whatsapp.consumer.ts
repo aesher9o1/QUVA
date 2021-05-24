@@ -17,17 +17,17 @@ export class WhatsappConsumer {
       const currentTime = new Date();
       const sendInavailability = currentTime.getHours() % 3 === 0;
       if (_.isNil(job?.data?.centers)) {
-        job.progress(100);
+        job.progress(1);
         resolve(true);
       } else if (currentTime.getHours() > 2 && currentTime.getHours() < 5) {
         //do not send updates at night. This will let the queue cool down a bit
-        job.progress(100);
+        job.progress(1);
         resolve(true);
       } else {
         try {
           const client = await this.whatsappService.getClient();
           if (_.isNil(client?.isLoggedIn)) {
-            job.progress(100);
+            job.progress(1);
             resolve(true);
           } else {
             // if (_.isNil(job.data.message)) {
@@ -52,11 +52,11 @@ export class WhatsappConsumer {
                       `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates periodically.`,
                     )
                     .then(() => {
-                      job.progress(10);
+                      job.progress(1);
                       resolve(true);
                     })
                     .catch((e) => {
-                      job.progress(10);
+                      job.progress(1);
                       new AlertHandler().sendText(JSON.stringify(e));
                       reject(e);
                     });
@@ -104,11 +104,11 @@ export class WhatsappConsumer {
                 client
                   .sendText(job.data.phoneNumber, message.join('\n'))
                   .then(() => {
-                    job.progress(10);
+                    job.progress(1);
                     resolve(true);
                   })
                   .catch((e) => {
-                    job.progress(10);
+                    job.progress(1);
                     new AlertHandler().sendText(JSON.stringify(e));
                     reject(e);
                   });
@@ -117,19 +117,19 @@ export class WhatsappConsumer {
               client
                 .sendText(job.data.phoneNumber, job.data.message)
                 .catch((e) => {
-                  job.progress(10);
+                  job.progress(1);
                   new AlertHandler().sendText(JSON.stringify(e));
                   reject(e);
                 })
                 .then(() => {
-                  job.progress(10);
+                  job.progress(1);
                   resolve(true);
                 });
             }
           }
         } catch (e) {
           new AlertHandler().sendText(JSON.stringify(e));
-          job.progress(100);
+          job.progress(1);
           resolve(true);
         }
       }
