@@ -1,6 +1,6 @@
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
-import _ from 'lodash';
+import _, { reject } from 'lodash';
 import { ICenterMini } from 'src/models/center.model';
 import { ISubscriptionCollection } from 'src/models/subscriber.model';
 import { AlertHandler } from 'src/utils/alerts.utils';
@@ -46,13 +46,21 @@ export class WhatsappConsumer {
             if (_.isNil(job.data.message)) {
               if (!job.data.centers.length) {
                 if (sendInavailability) {
-                  client.sendText(
-                    job.data.phoneNumber,
-                    `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates periodically.`,
-                  );
+                  client
+                    .sendText(
+                      job.data.phoneNumber,
+                      `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates periodically.`,
+                    )
+                    .then(() => {
+                      job.progress(10);
+                      resolve(true);
+                    })
+                    .catch((e) => {
+                      job.progress(10);
+                      new AlertHandler().sendText(JSON.stringify(e));
+                      reject(e);
+                    });
                 }
-                job.progress(100);
-                resolve(true);
               } else {
                 const message = [];
                 const grouped_centers = _.values(
@@ -93,19 +101,28 @@ export class WhatsappConsumer {
                     );
                   });
                 });
-                client.sendText(job.data.phoneNumber, message.join('\n'));
-                job.progress(100);
-                resolve(true);
+                client
+                  .sendText(job.data.phoneNumber, message.join('\n'))
+                  .then(() => {
+                    job.progress(10);
+                    resolve(true);
+                  })
+                  .catch((e) => {
+                    job.progress(10);
+                    new AlertHandler().sendText(JSON.stringify(e));
+                    reject(e);
+                  });
               }
             } else {
               client
                 .sendText(job.data.phoneNumber, job.data.message)
-                .catch(() => {
-                  job.progress(100);
-                  resolve(true);
+                .catch((e) => {
+                  job.progress(10);
+                  new AlertHandler().sendText(JSON.stringify(e));
+                  reject(e);
                 })
                 .then(() => {
-                  job.progress(100);
+                  job.progress(10);
                   resolve(true);
                 });
             }
