@@ -54,10 +54,13 @@ export class SlotManager {
 
       const centers: ICenter[] = slots.data.centers;
       if (centers.length > 0) {
+        const yesterday = moment().subtract(1, 'day').startOf('day');
         const availableCenters: ICenterMini[] = [];
         centers.forEach((center) => {
           const validSessions = center.sessions.filter(
-            (slot) => slot.available_capacity > 0,
+            (slot) =>
+              slot.available_capacity > 0 &&
+              moment(slot.date, 'DD/MM/YYYY').isAfter(yesterday),
           );
 
           if (validSessions.length > 0) {
