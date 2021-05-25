@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Queue } from 'bull';
@@ -21,10 +21,11 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async sendUpdate() {
     new AlertHandler().sendText('STARTING_CRON');
-    console.log('STARTING_CRON');
+    Logger.log('STARTING_CRON', this.sendUpdate.name);
+
     try {
       const res: {
         _id: string;
@@ -43,27 +44,29 @@ export class CronService {
         },
       ]);
 
-      console.log(`DB_FETCH ${res.length}`);
+      Logger.log(`DB_FETCH ${res.length}`, this.sendUpdate.name);
 
-      res.forEach((entry) => {
-        const slotManager = new SlotManager(entry._id, 200);
-        slotManager
-          .checkAvailibility()
-          .then((availables) => {
-            if (availables?.length) console.log(entry._id, availables.length);
-            availables = availables || [];
-            entry.data.forEach((doc) => {
-              this.messageQueue
-                .add({
+      res.forEach((entry, index) => {
+        setTimeout(() => {
+          const slotManager = new SlotManager(entry._id, 200);
+
+          slotManager
+            .checkAvailibility()
+            .then((availables) => {
+              if (availables?.length)
+                Logger.log(entry._id, availables.length.toString());
+              availables = availables || [];
+              entry.data.forEach((doc) => {
+                this.messageQueue.add({
                   pincode: entry._id,
                   phoneNumber: doc.phoneNumber,
                   centers: availables,
                   age: doc.age,
-                })
-                .catch(() => {});
-            });
-          })
-          .catch(() => {});
+                });
+              });
+            })
+            .catch(() => {});
+        }, index * 2);
       });
     } catch (e) {}
   }

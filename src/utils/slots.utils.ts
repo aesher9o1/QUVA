@@ -2,6 +2,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { ICenter, ICenterMini } from 'src/models/center.model';
 import { AlertHandler } from './alerts.utils';
+import { Logger } from '@nestjs/common';
 
 export class SlotManager {
   pincode: string;
@@ -13,28 +14,14 @@ export class SlotManager {
   }
 
   async checkAvailibility(): Promise<ICenterMini[]> {
-    console.log(`CHECKING_AVAILIBILITY_${this.pincode}_${this.age}`);
-    const datesArray = this.fetchNext5Days();
+    Logger.log(
+      `CHECKING_AVAILIBILITY_${this.pincode}_${this.age}`,
+      this.checkAvailibility.name,
+    );
     const availableCenters: ICenterMini[] = [];
-    const tasks = [];
-    datesArray.forEach((date) => tasks.push(this.getSlotsForDate(date)));
-    const res: ICenterMini[][] = await Promise.all(tasks);
-    res.forEach((center) => {
-      console.log(`FETCHED_CENTER_${this.pincode}_${this.age}`);
-      if (center) availableCenters.push(...center);
-    });
+    const center = await this.getSlotsForDate(moment().format('DD-MM-YYYY'));
+    if (center) availableCenters.push(...center);
     return availableCenters;
-  }
-
-  private fetchNext5Days() {
-    const dates: string[] = [];
-    const today = moment();
-    for (let i = 0; i < 5; i++) {
-      const dateString = today.format('DD-MM-YYYY');
-      dates.push(dateString);
-      today.add(1, 'day');
-    }
-    return dates;
   }
 
   private async getSlotsForDate(date: string): Promise<ICenterMini[]> {
@@ -83,8 +70,9 @@ export class SlotManager {
         return availableCenters;
       }
     } catch (e) {
-      console.log('FETCH_ERR', e);
+      Logger.error(e, this.getSlotsForDate.name);
       new AlertHandler().sendText(JSON.stringify(e.response));
+      return [];
     }
   }
 }

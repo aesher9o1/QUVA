@@ -1,4 +1,5 @@
 import { Processor, Process, OnQueueError, OnQueueFailed } from '@nestjs/bull';
+import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import _ from 'lodash';
 import { ICenterMini } from 'src/models/center.model';
@@ -69,7 +70,6 @@ export class WhatsappConsumer {
     const currentTime = new Date();
 
     const sendInavailability = currentTime.getHours() % 3 === 0;
-
     const client = await this.whatsappService.getClient();
 
     if (_.isNil(client?.isLoggedIn))
@@ -84,7 +84,7 @@ export class WhatsappConsumer {
     if (_.isNil(job.data.message)) {
       if (!job.data.centers.length) {
         if (sendInavailability) {
-          console.log('SENDING_INAVAILIBILITY_ALERTS');
+          Logger.log('SENDING_INAVAILIBILITY_ALERTS', this.sendMessage.name);
           new AlertHandler().sendText('SENDING_INAVAILIBILITY_ALERTS');
           return await client.sendText(
             job.data.phoneNumber,
@@ -104,6 +104,7 @@ export class WhatsappConsumer {
 
   @OnQueueFailed()
   async notifySlackFail(_, error: Error) {
+    Logger.error(error, this.notifySlackFail.name);
     new AlertHandler().sendText('QUEUE_FALILED' + JSON.stringify(error));
   }
 

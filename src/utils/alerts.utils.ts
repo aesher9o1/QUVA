@@ -12,7 +12,7 @@ export class AlertHandler {
           Authorization: `Bearer ${process.env.BOT_ACCESS_TOKEN}`,
         },
         data: { text, channel: process.env.BOT_ALERT_CHANNEL },
-      }).catch((err) => console.log(err));
+      }).catch(() => {});
   }
 
   sendBase64Img(image: string) {
@@ -32,6 +32,6 @@ export class AlertHandler {
         Authorization: `Bearer ${process.env.BOT_ACCESS_TOKEN}`,
       },
       data,
-    }).catch((err) => console.log(err));
+    }).catch(() => {});
   }
 }

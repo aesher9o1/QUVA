@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import _ from 'lodash';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Whatsapp, create } from 'venom-bot';
 import { AlertHandler } from './utils/alerts.utils';
 import { InjectModel } from '@nestjs/mongoose';
@@ -64,7 +64,7 @@ export class WhatsappService {
 
       this.setMessageListener(this.client);
     } catch (e) {
-      console.log(e);
+      Logger.error(e, this.createSession.name);
     }
   }
 
@@ -82,7 +82,7 @@ export class WhatsappService {
             age: { $ne: null },
           })
         )?.age;
-        console.log(`AGE ${find_age}`);
+        Logger.log(`AGE ${find_age}`, this.addNumber.name);
         await this.subscriberModel.updateOne(
           {
             phoneNumber,
@@ -152,7 +152,6 @@ export class WhatsappService {
   private setMessageListener(client: Whatsapp) {
     if (!_.isNil(client)) {
       client.onMessage(async (message) => {
-        console.log(`MESSAGE RECEIVED: ${message.body}`);
         if (!message.body) return;
         const parts = message.body.toLowerCase().split(/ +/);
         const command = parts.shift();
@@ -186,7 +185,7 @@ export class WhatsappService {
           }
           if (response) await client.sendText(message.from, response);
         } catch (e) {
-          console.log(e);
+          Logger.error(e, this.setMessageListener.name);
         }
       });
     }
