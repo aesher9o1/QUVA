@@ -19,14 +19,14 @@ const MessageQueueModule = BullModule.registerQueueAsync({
     redis: { host: 'localhost', port: 6379 },
     defaultJobOptions: {
       removeOnComplete: true,
-      removeOnFail: false,
+      removeOnFail: true,
     },
     prefix: 'WAPP',
     settings: {
       retryProcessDelay: 300,
       lockRenewTime: 1000,
       maxStalledCount: 0,
-      lockDuration: 1000,
+      lockDuration: 30000,
     },
   }),
 });

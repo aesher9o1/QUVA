@@ -39,6 +39,7 @@ export class CronService {
           },
         },
       ]);
+
       res.forEach((entry) => {
         const slotManager = new SlotManager(entry._id, 200);
         slotManager
