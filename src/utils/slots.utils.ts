@@ -71,7 +71,7 @@ export class SlotManager {
       }
     } catch (e) {
       Logger.error(e, this.getSlotsForDate.name);
-      new AlertHandler().sendText(JSON.stringify(e.response));
+      new AlertHandler().sendText(e.response);
       return [];
     }
   }
