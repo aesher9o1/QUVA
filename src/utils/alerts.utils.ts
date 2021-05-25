@@ -10,7 +10,7 @@ export class AlertHandler {
       headers: {
         Authorization: `Bearer ${process.env.BOT_ACCESS_TOKEN}`,
       },
-      data: { text },
+      data: { text, channel: process.env.BOT_ALERT_CHANNEL },
     }).catch((err) => console.log(err));
   }
 

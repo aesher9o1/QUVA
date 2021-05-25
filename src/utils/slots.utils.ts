@@ -13,7 +13,7 @@ export class SlotManager {
   }
 
   async checkAvailibility(): Promise<ICenterMini[]> {
-    const datesArray = this.fetchNext10Days();
+    const datesArray = this.fetchNext5Days();
     const availableCenters: ICenterMini[] = [];
     const tasks = [];
     datesArray.forEach((date) => {
@@ -26,10 +26,10 @@ export class SlotManager {
     return availableCenters;
   }
 
-  private fetchNext10Days() {
+  private fetchNext5Days() {
     const dates: string[] = [];
     const today = moment();
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       const dateString = today.format('DD-MM-YYYY');
       dates.push(dateString);
       today.add(1, 'day');
@@ -83,7 +83,7 @@ export class SlotManager {
         return availableCenters;
       }
     } catch (e) {
-      new AlertHandler().sendText(JSON.stringify(e));
+      new AlertHandler().sendText(JSON.stringify(e.response));
     }
   }
 }

@@ -45,6 +45,7 @@ export class CronService {
         slotManager
           .checkAvailibility()
           .then((availables) => {
+            console.log(entry._id, availables.length);
             availables = availables || [];
             entry.data.forEach((doc) => {
               this.messageQueue

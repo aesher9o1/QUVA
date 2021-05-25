@@ -67,6 +67,7 @@ export class WhatsappConsumer {
   @Process()
   async sendMessage(job: Job<ISubscriptionCollection>) {
     const currentTime = new Date();
+
     const sendInavailability = currentTime.getHours() % 3 === 0;
 
     const client = await this.whatsappService.getClient();
@@ -101,11 +102,11 @@ export class WhatsappConsumer {
 
   @OnQueueFailed()
   async notifySlackFail(_, error: Error) {
-    new AlertHandler().sendText(JSON.stringify(error));
+    new AlertHandler().sendText('QUEUE_FALILED' + JSON.stringify(error));
   }
 
   @OnQueueError()
   async notifySlack(_, error: Error) {
-    new AlertHandler().sendText(JSON.stringify(error));
+    new AlertHandler().sendText('QUEUE_ERROR' + JSON.stringify(error));
   }
 }
