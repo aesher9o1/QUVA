@@ -21,9 +21,10 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async sendUpdate() {
-    new AlertHandler().sendText('Starting CRON');
+    new AlertHandler().sendText('STARTING_CRON');
+    console.log('STARTING_CRON');
     try {
       const res: {
         _id: string;
@@ -43,11 +44,13 @@ export class CronService {
       ]);
 
       res.forEach((entry) => {
+        new AlertHandler().sendText('DB_FETCH_SUCESSFULL');
+        console.log('DB_FETCH_SUCESSFULL');
         const slotManager = new SlotManager(entry._id, 200);
         slotManager
           .checkAvailibility()
           .then((availables) => {
-            console.log(entry._id, availables.length);
+            if (availables?.length) console.log(entry._id, availables.length);
             availables = availables || [];
             entry.data.forEach((doc) => {
               this.messageQueue

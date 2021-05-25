@@ -84,6 +84,8 @@ export class WhatsappConsumer {
     if (_.isNil(job.data.message)) {
       if (!job.data.centers.length) {
         if (sendInavailability) {
+          console.log('SENDING_INAVAILIBILITY_ALERTS');
+          new AlertHandler().sendText('SENDING_INAVAILIBILITY_ALERTS');
           return await client.sendText(
             job.data.phoneNumber,
             `This is to notify you that there are no available slots at ${job.data.pincode} location yet. However we'll keep notifying you about the updates periodically.`,

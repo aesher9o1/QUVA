@@ -4,14 +4,15 @@ import axios from 'axios';
 
 export class AlertHandler {
   sendText(text: string) {
-    axios({
-      url: '  https://slack.com/api/chat.postMessage',
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.BOT_ACCESS_TOKEN}`,
-      },
-      data: { text, channel: process.env.BOT_ALERT_CHANNEL },
-    }).catch((err) => console.log(err));
+    if (process.env.DISABLE_ALERTS !== 'true')
+      axios({
+        url: '  https://slack.com/api/chat.postMessage',
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.BOT_ACCESS_TOKEN}`,
+        },
+        data: { text, channel: process.env.BOT_ALERT_CHANNEL },
+      }).catch((err) => console.log(err));
   }
 
   sendBase64Img(image: string) {
