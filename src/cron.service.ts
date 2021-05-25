@@ -21,7 +21,7 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async sendUpdate() {
     new AlertHandler().sendText('STARTING_CRON');
     console.log('STARTING_CRON');
@@ -43,8 +43,7 @@ export class CronService {
         },
       ]);
 
-      new AlertHandler().sendText('DB_FETCH_SUCESSFULL');
-      console.log('DB_FETCH_SUCESSFULL');
+      console.log(`DB_FETCH ${res.length}`);
 
       res.forEach((entry) => {
         const slotManager = new SlotManager(entry._id, 200);
