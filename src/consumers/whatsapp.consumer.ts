@@ -1,10 +1,4 @@
-import {
-  Processor,
-  Process,
-  OnQueueError,
-  OnQueueFailed,
-  OnQueueCompleted,
-} from '@nestjs/bull';
+import { Processor, Process, OnQueueError, OnQueueFailed } from '@nestjs/bull';
 import { Job } from 'bull';
 import _ from 'lodash';
 import { ICenterMini } from 'src/models/center.model';
