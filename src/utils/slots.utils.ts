@@ -39,6 +39,7 @@ export class SlotManager {
         },
       );
 
+      console.log(slots.data);
       const centers: ICenter[] = slots.data.centers;
       if (centers.length > 0) {
         const yesterday = moment().subtract(1, 'day').startOf('day');
