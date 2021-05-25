@@ -82,7 +82,7 @@ export class WhatsappService {
             age: { $ne: null },
           })
         )?.age;
-        console.log(find_age);
+        console.log(`AGE ${find_age}`);
         await this.subscriberModel.updateOne(
           {
             phoneNumber,
