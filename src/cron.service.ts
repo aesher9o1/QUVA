@@ -8,6 +8,7 @@ import {
   ISubscriptionCollection,
   SubscriberCollection,
 } from './models/subscriber.model';
+import { AlertHandler } from './utils/alerts.utils';
 import { BullQueueNames } from './utils/config.utils';
 import { SlotManager } from './utils/slots.utils';
 
@@ -20,8 +21,9 @@ export class CronService {
     private readonly messageQueue: Queue<ISubscriptionCollection>,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async sendUpdate() {
+    new AlertHandler().sendText('Starting CRON');
     try {
       const res: {
         _id: string;
