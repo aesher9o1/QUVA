@@ -43,9 +43,10 @@ export class CronService {
         },
       ]);
 
+      new AlertHandler().sendText('DB_FETCH_SUCESSFULL');
+      console.log('DB_FETCH_SUCESSFULL');
+
       res.forEach((entry) => {
-        new AlertHandler().sendText('DB_FETCH_SUCESSFULL');
-        console.log('DB_FETCH_SUCESSFULL');
         const slotManager = new SlotManager(entry._id, 200);
         slotManager
           .checkAvailibility()
