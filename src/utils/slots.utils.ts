@@ -13,14 +13,14 @@ export class SlotManager {
   }
 
   async checkAvailibility(): Promise<ICenterMini[]> {
+    console.log(`CHECKING_AVAILIBILITY_${this.pincode}_${this.age}`);
     const datesArray = this.fetchNext5Days();
     const availableCenters: ICenterMini[] = [];
     const tasks = [];
-    datesArray.forEach((date) => {
-      tasks.push(this.getSlotsForDate(date));
-    });
+    datesArray.forEach((date) => tasks.push(this.getSlotsForDate(date)));
     const res: ICenterMini[][] = await Promise.all(tasks);
     res.forEach((center) => {
+      console.log(`FETCHED_CENTER_${this.pincode}_${this.age}`);
       if (center) availableCenters.push(...center);
     });
     return availableCenters;
@@ -83,6 +83,7 @@ export class SlotManager {
         return availableCenters;
       }
     } catch (e) {
+      console.log('FETCH_ERR', e);
       new AlertHandler().sendText(JSON.stringify(e.response));
     }
   }
